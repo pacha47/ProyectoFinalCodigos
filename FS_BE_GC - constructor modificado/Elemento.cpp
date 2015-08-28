@@ -21,38 +21,34 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 	vec ecuav(2*ne);
 	double aP=0,D=0,C=0,Pu=0,Pv=0;
 	fu = fv = 0;
+	vector<double> dist;
 	
 	for(int i = 0; i < n ; i++){
 		/// OBTENEMOS EL VECINO PARA SETEAR uj
-		vecino = aristas[i]->getVecino(*this);
+		vecino = aristas[i]->getVecino(*this, dist);
 		switch(aristas[i]->isFront()){
 		case 1:
 			uj = aristas[i]->getuv(); u_f = uj;
-			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
-			dij = aristas[i]->getMidP() - midPoint;
-			vecino.midPoint = aristas[i]->getMidP();
 			
-			fu += uj.x * aristas[i]->getModulo() / (*aristas[i] % dij * Re);
-			fv += uj.y * aristas[i]->getModulo() / (*aristas[i] % dij * Re);
+			fu += uj.x * aristas[i]->d_ij() / Re;
+			fv += uj.y * aristas[i]->d_ij() / Re;
+			
 			break;
 		case 2:
 			uj = ui; u_f = uj;
-			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
-			dij = aristas[i]->getMidP() - midPoint;
-			vecino.midPoint = aristas[i]->getMidP();
 			/// HACEMOS QUE LA PRESION EN LA FRONTERA SEA NULA
 			vecino.p = (this->p * -1.0) + aristas[i]->getp();
 			break;
 		default:
 			uj = Nodo(vecino.u,vecino.v);
-			u_f = (uj + ui) / 2.0; 
+			u_f = uj * dist[1] + ui * dist[0]; 
 			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
-			dij = vecino.midPoint - midPoint;
+			*aristas[i] % (vecino.midPoint - midPoint);
 			break;
 		}
 		
 		/// CALCULAMOS LA PARTE DIFUSIVA
-		D = aristas[i]->getModulo() / (*aristas[i] % dij * Re);
+		D = aristas[i]->d_ij() / Re;
 		aP+=D;
 		
 		/// CALCULAMOS LA PARTE CONVECTIVA
@@ -64,8 +60,8 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 			C = vn;
 		}
 		/// AGREGAMOS LA PRESION EN EL INSTANTE N
-		Pu -= (vecino.p + this->p) * aristas[i]->getModulo() * aristas[i]->getn().x / 2.0;
-		Pv -= (vecino.p + this->p) * aristas[i]->getModulo() * aristas[i]->getn().y / 2.0;
+		Pu -= (vecino.p * dist[1] + this->p * dist[0] ) * aristas[i]->getModulo() * aristas[i]->getn().x;
+		Pv -= (vecino.p * dist[1] + this->p * dist[0] ) * aristas[i]->getModulo() * aristas[i]->getn().y;
 		
 		ecuau(vecino.numero*2  ) = C - D;
 		ecuav(vecino.numero*2+1) = C - D;
@@ -89,38 +85,29 @@ vec Elemento::operador_P1(int ne, double dt, double &f){
 	f=0;
 	Elemento vecino;
 	Nodo vel, dij;
+	vector<double> dist;
+	
 	for(int i = 0; i < n ; i++){
 		/// OBTENEMOS EL VECINO PARA SETEAR LA VELOCIDAD EN LA FRONTERA
-		vecino = aristas[i]->getVecino(*this);
-		double kdij = 0;
+		vecino = aristas[i]->getVecino(*this, dist);
+		double kdij = dt * aristas[i]->d_ij() / aristas[i]->getModulo();
 		switch(aristas[i]->isFront()){
 		case 1:
 			vel = aristas[i]->getuv();
-			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
-			dij = aristas[i]->getMidP() - midPoint;
-			/// CALCULAMOS LA PARTE DIFUSIVA
-			kdij =  dt / (*aristas[i] % dij );
 			break;
 		case 2:
 			vel = Nodo(u_12,v_12);
-			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
-			dij = aristas[i]->getMidP() - midPoint;
-			/// CALCULAMOS LA PARTE DIFUSIVA
-			kdij =  dt / (*aristas[i] % dij );
 			ecuacion(numero)+= kdij;
 			vecino.p = .0;
 			break;
 		default:
-			vel = Nodo( (vecino.u_12 + u_12) /2.0 , (vecino.v_12 + v_12)/2.0);
-			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
-			dij = vecino.midPoint - midPoint;
-			/// CALCULAMOS LA PARTE DIFUSIVA
-			kdij =  dt / (*aristas[i] % dij );
+			vel = Nodo(vecino.u_12 * dist[1] + u_12 * dist[0], vecino.v_12 * dist[1] + v_12 * dist[0]);
 			/// AGREGAMOS LOS VALORES CALCULADOS A LA ECUACION
 			ecuacion(numero)+= kdij;
 			ecuacion(vecino.numero) -= kdij;
 			break;
 		}
+		*aristas[i] % (vecino.midPoint - midPoint);
 		/// AGREGAMOS LA VELOCIDAD U^(1 + 1/2)
 		f-= (*aristas[i] * vel) * aristas[i]->getModulo();
 		
@@ -144,7 +131,6 @@ void Elemento::setp(double presion){
 
 double Elemento::operador_P2(double dt){
 	
-	int n = aristas.size();
 	Elemento vecino;
 	Nodo dij;
 	double gradP=0;

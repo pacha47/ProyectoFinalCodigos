@@ -35,7 +35,7 @@ public:
 	void adivinar();
 	void setId(int id);
 	double iterar();
-	double corregir(double alpha);
+	double corregir();
 	double getAp(){return ap;};
 	double getv(){return v;}
 	double getu(){return u;}

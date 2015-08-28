@@ -124,16 +124,6 @@ void Malla::iterar(){
 	int an = aristas.size(), ae = elementos.size();
 	double f;
 	
-//	int ite = 0;
-//	double e = 1;
-//	while ( ite++ < ite_vel  && e > error_vel){
-//		e=0;
-//		for(int i=0;i<an;i++)
-//			e += aristas[i].iterar();
-//		for(int i=0;i<an;i++)
-//			aristas[i].corregir(.0);
-//	}
-	
 	for(int i=0;i<an;i++){
 		U.setRow(i,aristas[i].ecuaVelocidad(an,f));
 		B(i) = f;
@@ -143,7 +133,6 @@ void Malla::iterar(){
 	U.GausSeidel(B,p_prima);
 	
 	for(int i=0;i<an;i++) aristas[i].asignarUV( p_prima(i) );
-	
 	
 	for(int i=0;i<ae;i++){
 		K.setRow(i, elementos[i].ecuaPresion(ae,f));
@@ -159,7 +148,6 @@ void Malla::corregir(){
 	vec p_prima(ae);
 	
 	K.gradConjugado(F,p_prima);
-//	K.GausSeidel(F,p_prima);
 	
 	for(int i=0;i<ae;i++){
 		double p_cor = p_prima(i);
@@ -168,7 +156,7 @@ void Malla::corregir(){
 	error = 0;
 	
 	for(int i=0;i<an;i++){
-		error += aristas[i].corregir(1.0);}
+		error += aristas[i].corregir();}
 //	asignar();
 }
 

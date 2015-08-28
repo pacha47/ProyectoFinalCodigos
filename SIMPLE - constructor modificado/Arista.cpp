@@ -182,7 +182,7 @@ double Arista::iterar(){
 }
 
 /// CORREGIMOS LOS CAMPOS DE VELOCIDAD
-double Arista::corregir(double alpha){
+double Arista::corregir(){
 	
 	/// SI ES FRONTERA SOLAMENTE RETORNAMOS EL VALOR DE LA MISMA
 	if(tipoFront == 1){
@@ -210,8 +210,8 @@ double Arista::corregir(double alpha){
 			Elemento aux=e0;
 			e0 = e1 ; e1 = aux;}
 		/// REALIZAMOS LOS PASOS PARA CORREGIR LA VELOCIDAD u		
-		double u_cor = (e0 < e1) *modulo*modulo / ap;
-		u = oldU + u_cor*alpha;
+		double u_cor = (e0 < e1) *modulo / ap;
+		u = oldU + u_cor;
 		return pow(oldU - u,2.0);
 	}else{
 		if( e1.top(midPoint) ){ 
@@ -220,8 +220,8 @@ double Arista::corregir(double alpha){
 			Elemento aux=e0;
 			e0 = e1 ; e1 = aux;}
 		/// REALIZAMOS LOS PASOS PARA CORREGIR LA VELOCIDAD v
-		double v_cor = (e0 < e1) * modulo*modulo / ap ;
-		v= oldV + v_cor*alpha;
+		double v_cor = (e0 < e1) * modulo / ap ;
+		v= oldV + v_cor;
 		return pow(oldV - v,2.0);
 		}
 }
@@ -317,186 +317,7 @@ vec Arista::setVecinos(int n){
 	
 }
 
-
-
 /// RETORNA LA ECUACION DE VELOCIDAD DE DICHA ARISTA
-/*vec Arista::ecuaVelocidad(int n, double &f){
-	/// vector ecuacion
-	vec ecua(n);
-	f=0;
-	/// EVALUAMOS SI ESTAMOS EN UNA ARISTA PARA u O v
-	Nodo x(1,0);
-	double alpha = fabs(x * normal);
-	
-	if(tipoFront == 1){
-		ecua(this->id) = 1;
-		f = (alpha > 0.01) ? u : v;
-		
-		this->ap = 1;
-		return ecua;}
-	
-	Elemento e0 = *elementos[0], e1 = *elementos[1];
-	
-	if(alpha > 0.01 ){
-		if( e0.left(midPoint)){
-			/// LA ARISTA ESTA EN LA IZQUIERDA DEL ELEMENTO e
-			/// ENTONCES MODIFICAMOS LA REFERENCIA DE LOS ELEMENTOS
-			Elemento aux=e0;
-			e0 = e1 ; e1 = aux;}
-		/// REALIZAMOS LOS PASOS PARA ADQUIRIR LOS COEFICIENTES
-		/// NECESARIOS PARA REALIZAR LA ITERACION
-		
-		///  PARA LAS VELOCIDADES EN u EL ELEMENTO e0 ESTA A LA IZQUIERDA
-		/// Y EL ELEMENTO e1 ESTA A LA DERECHA SIN IMPORTAR SI ES FRONTERA O NO
-		
-		/// GRADIENTE DE PRESION
-		f = (e0 - e1) * modulo ;
-		
-		/// ARISTAS LATERALES
-		Arista izq = e0.getAri(Nodo(-1,0));
-		Arista der = e1.getAri(Nodo(1,0));
-		
-		double fw = (izq.u + this->u)/2.0,
-			fe = (der.u + this->u)/2.0;
-		
-		/// ARISTAS SUPERIOR E INFERIOR
-		Arista top1 = e0.getAri(Nodo(0,1));
-		Arista top2 = e1.getAri(Nodo(0,1));
-		
-		Arista bot1 = e0.getAri(Nodo(0,-1));
-		Arista bot2 = e1.getAri(Nodo(0,-1));
-		
-		double fn = (top1.v + top2.v)/2.0,
-			fs = (bot1.v + bot2.v)/2.0;
-		
-		
-		///            ELEMENTO IZQUIERDO
-		double ap    =  modulo / (top1.modulo * Re) + fw * 0.5 * modulo; // va menos en el convectivo
-		ecua(izq.id) = -modulo / (top1.modulo * Re) - fw * 0.5 * modulo;
-		
-		///            ELEMENTO DERECHO
-		ap          +=  modulo / (top2.modulo * Re) + fe * 0.5 * modulo;
-		ecua(der.id) = -modulo / (top2.modulo * Re) + fe * 0.5 * modulo;
-		
-		///            ELEMENTO ARRIBA
-		if(top1.tipoFront == 0){
-			Arista top = (top1.getVecino(e0)).getAri(Nodo(1,0));
-			
-			ap          +=  top1.modulo / (modulo * Re) + fn * 0.5 * top1.modulo;
-			ecua(top.id) = -top1.modulo / (modulo * Re) + fn * 0.5 * top1.modulo;
-		}else{
-			ap += top1.modulo * 2.0          / (modulo * Re) + top1.v * 0.5 * top1.modulo;
-			f  += top1.modulo * 2.0 * top1.u / (modulo * Re) + top1.v * 0.5 * top1.modulo * top1.u;
-		}
-		
-		///            ELEMENTO ABAJO
-		if(bot1.tipoFront == 0){
-			Arista bot = (bot1.getVecino(e0)).getAri(Nodo(1,0));
-			
-			ap          +=  bot1.modulo / (modulo * Re) + fs * 0.5 * bot1.modulo; // va menos en convectivo
-			ecua(bot.id) = -bot1.modulo / (modulo * Re) - fs * 0.5 * bot1.modulo;
-		}else{
-			ap += bot1.modulo * 2.0          / (modulo * Re) + bot1.v * 0.5 * bot1.modulo;
-			f  += bot1.modulo * 2.0 * bot1.u / (modulo * Re) + bot1.v * 0.5 * bot1.modulo * bot1.u;
-		}
-		
-		///            ELEMENTO P
-//		ecua = ecua * dt;
-//		ap*=dt;
-//		f*=dt;
-		
-		ap += modulo*modulo / dt;
-		f  += modulo*modulo * this->u / dt;
-		
-		ecua(this->id) = ap;
-		
-		this->ap = ap;
-		
-		return ecua;
-		
-	}else{
-		if( e1.top(midPoint)){ 
-			/// LA ARISTA ESTA EN LA ARRIBA DEL ELEMENTO e1
-			/// ENTONCES MODIFICAMOS LA REFERENCIA DE LOS ELEMENTOS
-			Elemento aux=e0;
-			e0 = e1 ; e1 = aux;}
-		/// REALIZAMOS LOS PASOS PARA ADQUIRIR LOS COEFICIENTES
-		/// NECESARIOS PARA REALIZAR LA ITERACION
-		
-		/// PARA LAS VELOCIDADES EN v EL ELEMENTO e0 ESTA ABAJO Y EL
-		/// ELEMENTO e1 ESTA ARRIBA SIN IMPORTAR SI ES FRONTERA O NO
-		
-		/// GRADIENTE DE PRESION
-		f = (e0 - e1) * modulo;
-		
-		/// ARISTAS SUPERIOR E INFERIOR
-		Arista top = e1.getAri(Nodo(0,1));
-		Arista bot = e0.getAri(Nodo(0,-1));
-		
-		double fn = (top.v + this->v)/2.0,
-			fs = (bot.v + this->v)/2.0;
-		
-		/// ARISTAS LATERALES	
-		Arista der1 = e0.getAri(Nodo(1,0));
-		Arista der2 = e1.getAri(Nodo(1,0));
-		
-		Arista izq1 = e0.getAri(Nodo(-1,0));
-		Arista izq2 = e1.getAri(Nodo(-1,0));
-		
-		double fw = (izq1.u + izq2.u)/2.0,
-			fe = (der1.u + der2.u)/2.0;
-		
-		
-		///            ELEMENTO ARRIBA
-		double ap    =  modulo / (der2.modulo * Re) + fn * 0.5 * modulo;
-		ecua(top.id) = -modulo / (der2.modulo * Re) + fn * 0.5 * modulo;
-		
-		///            ELEMENTO ABAJO
-		ap          +=  modulo / (der1.modulo * Re) + fs * 0.5 * modulo; // menos convectivo
-		ecua(bot.id) = -modulo / (der1.modulo * Re) - fs * 0.5 * modulo;
-		
-		///            ELEMENTO DERECHO
-		if(der1.tipoFront == 0){
-			Arista der = (der1.getVecino(e0)).getAri(Nodo(1,0));
-			
-			ap          +=  der1.modulo / (modulo * Re) + fe * 0.5 * der1.modulo;
-			ecua(der.id) = -der1.modulo / (modulo * Re) + fe * 0.5 * der1.modulo;
-		}else{
-			ap += der1.modulo * 2.0          / (modulo * Re) + der1.u * 0.5 * der1.modulo;
-			f  += der1.modulo * 2.0 * der1.v / (modulo * Re) + der1.u * 0.5 * der1.modulo * der1.v;
-		}
-		
-		///            ELEMENTO IZQUIERDO
-		if(izq1.tipoFront == 0){
-			Arista izq = (izq1.getVecino(e0)).getAri(Nodo(1,0));
-			
-			ap          +=  izq1.modulo / (modulo * Re) + fw * 0.5 * izq1.modulo;  //menos convectivo
-			ecua(izq.id) = -izq1.modulo / (modulo * Re) - fw * 0.5 * izq1.modulo;
-		}else{
-			ap += izq1.modulo * 2.0          / (modulo * Re) + izq1.u * izq1.modulo * 0.5;
-			f  += izq1.modulo * 2.0 * izq1.v / (modulo * Re) + izq1.u * izq1.modulo * 0.5 * izq1.v;
-		}
-		
-		
-		///            ELEMENTO P
-//		ecua = ecua * dt;
-//		ap*=dt;
-//		f*=dt;
-		
-		ap += modulo*modulo / dt;
-		f  += modulo*modulo * this->v / dt;
-		
-		ecua(this->id) = ap;
-		
-		this->ap = ap;
-		
-		return ecua;
-	}
-} //*/
-
-
-
-
 vec Arista::ecuaVelocidad(int n, double &f){
 	/// vector ecuacion
 	vec ecua(n);
@@ -508,7 +329,6 @@ vec Arista::ecuaVelocidad(int n, double &f){
 	if(tipoFront == 1){
 		ecua(this->id) = 1;
 		f = (alpha > 0.01) ? u : v;
-
 		this->ap = 1;
 		return ecua;}
 
@@ -527,7 +347,7 @@ vec Arista::ecuaVelocidad(int n, double &f){
 		/// Y EL ELEMENTO e1 ESTA A LA DERECHA SIN IMPORTAR SI ES FRONTERA O NO
 
 		/// GRADIENTE DE PRESION
-		f = (e0 - e1) * modulo ;
+		f = (e0 - e1) * modulo;
 
 		/// ARISTAS LATERALES
 		Arista izq = e0.getAri(Nodo(-1,0));
@@ -545,7 +365,6 @@ vec Arista::ecuaVelocidad(int n, double &f){
 
 		double 	fn = (top1.v + top2.v)/2.0,
 				fs = (bot1.v + bot2.v)/2.0;
-
 
 		///            ELEMENTO IZQUIERDO
 		double ap    =  modulo / (top1.modulo * Re) + max(-fw,0.0) * modulo; // va menos en el convectivo
@@ -578,12 +397,8 @@ vec Arista::ecuaVelocidad(int n, double &f){
 		}
 
 		///            ELEMENTO P
-		//		ecua = ecua * dt;
-		//		ap*=dt;
-		//		f*=dt;
-
-//		ap += modulo*modulo / dt;
-//		f  += modulo*modulo * this->u / dt;
+		ap += modulo*modulo / dt;
+		f  += modulo*modulo * this->u / dt;
 
 		ecua(this->id) = ap;
 
@@ -656,12 +471,8 @@ vec Arista::ecuaVelocidad(int n, double &f){
 
 
 		///            ELEMENTO P
-		//		ecua = ecua * dt;
-		//		ap*=dt;
-		//		f*=dt;
-
-//		ap += modulo*modulo / dt;
-//		f  += modulo*modulo * this->v / dt;
+		ap += modulo*modulo / dt;
+		f  += modulo*modulo * this->v / dt;
 
 		ecua(this->id) = ap;
 
@@ -670,20 +481,6 @@ vec Arista::ecuaVelocidad(int n, double &f){
 		return ecua;
 	}
 }//*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

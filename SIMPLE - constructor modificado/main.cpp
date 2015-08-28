@@ -26,7 +26,7 @@ int iteraciones, ite_vel = 5;
 /// alpha_p es el coeficiente de actualizaci√≥n de P = P + alpha_p * P'
 /// max_error es el error maximo permitido entre las iteraciones
 /// error_vel es un corte para la iteraciones en la velocidad (invento mio)
-double Re, alpha_p = .0001, max_error = 1e-8, error_vel = 1e-8, dt = .0;
+double Re, alpha_p = .3, max_error = 1e-8, error_vel = 1e-8, dt = .0;
 
 /// FUNCIONES ADICIONALES
 void load(ifstream &f,mint &elementos, mdouble &nodos, mdouble &contorno);
@@ -34,11 +34,11 @@ void load(ifstream &f,mint &elementos, mdouble &nodos, mdouble &contorno);
 int main (int argc, char **argv) {
 	
 	/// CARGAMOS LOS ARCHIVOS
-	ifstream file(argv[1], ios::in);
-//	ifstream file("prueba.dat", ios::in);
+//	ifstream file(argv[1], ios::in);
+	ifstream file("Cuadrados.dat", ios::in);
 	
-	FILE *fs = fopen(argv[2],"w");
-//	FILE *fs = fopen("prueba.post.res","w");
+//	FILE *fs = fopen(argv[2],"w");
+	FILE *fs = fopen("Cuadrados.post.res","w");
 	/// CARGAMOS LOS ELEMENTOS Y NODOS
 	load(file,ele, nodos, ncond);
 	
@@ -50,6 +50,9 @@ int main (int argc, char **argv) {
 	cout<<"dt : "<<dt<<", Re : "<<Re<<endl;
 	cout<<"Iteraciones m·ximas : "<<iteraciones<<", tolerancia : "<<max_error<<endl<<endl;
 	
+	dt = 0.03;
+	iteraciones = 500;
+	
 	int ite=0;
 	do{
 		m.iterar();
@@ -60,7 +63,7 @@ int main (int argc, char **argv) {
 	
 	m.write(fs);
 	
-//	cin>>ite;
+	cin>>ite;
 	
 	return 0;
 }

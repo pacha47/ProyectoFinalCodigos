@@ -18,7 +18,7 @@ mdouble nodos, ncond;
 mint ele;
 Malla m;
 int iteraciones;
-double Re, dt, e, alpha_prima = .001;
+double Re, dt, e, alpha_prima = .1;
 
 void load(ifstream &f,mint &elementos, mdouble &nodos, mdouble &contorno);
 
@@ -27,11 +27,16 @@ void load(ifstream &f,mint &elementos, mdouble &nodos, mdouble &contorno);
 int main (int argc, char **argv) {
 	
 	/// CARGAMOS LOS ARCHIVOS
-	ifstream file(argv[1], ios::in);
-//	ifstream file("prueba2.dat", ios::in);
+//	ifstream file(argv[1], ios::in);
+	ifstream file("Triangulos.dat", ios::in);
 	
-	FILE *fs = fopen(argv[2],"w");
-//	FILE *fs = fopen("prueba2.post.res","w");
+//	ifstream file("Cuadrado crusado.dat", ios::in);
+	
+	
+//	FILE *fs = fopen(argv[2],"w");
+	FILE *fs = fopen("Triangulos.post.res","w");
+	
+//	FILE *fs = fopen("Cuadrado crusado.post.res","w");
 	
 	/// CARGAMOS LOS ELEMENTOS Y NODOS
 	load(file,ele, nodos, ncond);
@@ -46,24 +51,33 @@ int main (int argc, char **argv) {
 	
 	m.primeraIte();
 	
-	int i=0, ii=2;
+	int i=1, ii=2;
 	double ite_e=10;
+	m.addvel();
+	m.defVel();
 	m.write(fs);
-	while (ite_e>e && iteraciones>i){
+	
+	while (ite_e>e && iteraciones>i && ite_e < 1e4){
 		ite_e = m.iterar(dt);
-		cout<<"Error "<<++i<<": "<<ite_e<<endl;
-		if( i%5 == 0 ) {
+		cout<<"Error "<<i++<<": "<<ite_e<<endl;
+//		if( i%2 == 0 ) {
 			m.addvel();
 			m.defVel();
 			m.write(fs,ii++);
-		}
+//		}
 	}
+	
+	
+//	while (ite_e>e && iteraciones>i){
+//		ite_e = m.iterar(dt);
+//		cout<<"Error "<<++i<<": "<<ite_e<<endl;
+//	}
 	
 //	m.addvel();
 //	m.defVel();
 //	m.write(fs);
 	
-//	cin>>i;
+	cin>>i;
 	
 	return 0;
 }

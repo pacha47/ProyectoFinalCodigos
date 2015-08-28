@@ -17,7 +17,8 @@ private:
 	vector<vector<Elemento>::iterator> elementos;
 	
 	int tipoFront, id;
-	double u,v,p, modulo;
+	double u,v,p, modulo, dij;
+	vector<double> dist;
 	
 public:
 	/// CONSTRUSTORES Y SETEADORES
@@ -36,12 +37,15 @@ public:
 	
 	/// FUNCIONES BASICAS
 	Elemento getVecino(Elemento e);
+	Elemento getVecino(Elemento e, vector<double> &d);
 	int isFront(){return tipoFront;}
 	double getModulo();
 	Nodo getuv();
 	Nodo getn();
 	double getp();
 	Nodo getMidP();
+	
+	double d_ij(){return dij;}
 	
 };
 

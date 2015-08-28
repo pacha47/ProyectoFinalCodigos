@@ -43,6 +43,7 @@ public:
 	bool operator!=(Elemento e);
 	
 	double getArea();
+	Nodo midP(){return midPoint;}
 };
 
 

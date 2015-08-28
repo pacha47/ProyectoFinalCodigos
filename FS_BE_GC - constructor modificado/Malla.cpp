@@ -59,6 +59,8 @@ void Malla::primeraIte(){
 	
 	U.GausSeidel(B,uv);
 	
+	std::cout<<"ENTRO PRIMERA ITE"<<std::endl;
+	
 	for(int i = 0; i < nEle ; i++) {
 		elementos[i].setu12(uv(2*i));
 		elementos[i].setv12(uv(2*i+1));

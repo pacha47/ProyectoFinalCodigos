@@ -63,10 +63,6 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 		}else{
 			C = vn;
 		}
-		/// AGREGAMOS LA PRESION EN EL INSTANTE N
-		Pu -= (vecino.p + this->p) * aristas[i]->getModulo() * aristas[i]->getn().x / 2.0;
-		Pv -= (vecino.p + this->p) * aristas[i]->getModulo() * aristas[i]->getn().y / 2.0;
-		
 		ecuau(vecino.numero*2  ) = C - D;
 		ecuav(vecino.numero*2+1) = C - D;
 	}
@@ -74,84 +70,67 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 	ecuau(this->numero*2  ) = aP + this->area / dt;
 	ecuav(this->numero*2+1) = aP + this->area / dt;
 	
-	fu += this->u * this->area / dt + Pu;
-	fv += this->v * this->area / dt + Pv;
+	
+	/// CALCULAMOS EL GRADIENTE DE PRESION
+	mat m(2);
+	vec b(2), g(2);
+	
+	for(int i = 0; i < 2 ; i++){
+		if (aristas[i]->isFront() == 0){
+			vecino = aristas[i]->getVecino(*this);
+			Nodo Dxy = vecino.midPoint - this->midPoint;
+			m(i,0) = Dxy.x; m(i,1) = Dxy.y;
+			b(i) = vecino.p - this->p;
+		}else{
+			Nodo Dxy = aristas[i]->getMidP() - this->midPoint;
+			m(i,0) = Dxy.x; m(i,1) = Dxy.y;
+			b(i) =  0;
+		}
+	}
+	
+	m.gauss(b,g);
+	
+	fu += this->u * this->area / dt - g(0) * this->area;
+	fv += this->v * this->area / dt - g(1) * this->area;
 	
 	vector<vec> ecuacion;
 	ecuacion.push_back(ecuau); ecuacion.push_back(ecuav); 
-	this->ap = ecuau(this->numero*2 );
+	this->ap = ecuau(this->numero*2);
 	return ecuacion;
-}
-
-vector<vec> Elemento::u_prima(int ne){
-	vec u(ne), v(ne);
-	vector<vec> uvec;
-	for(int i=0;i<aristas.size();i++){
-		Elemento veci = aristas[i]->getVecino(*this);
-		if(this->numero != veci.numero){
-			*aristas[i] % (veci.midPoint - this->midPoint);
-			u(veci.numero) += .5 * aristas[i]->getn().x;
-			u(numero) += .5 * aristas[i]->getn().x;
-			v(veci.numero) += .5 * aristas[i]->getn().y;
-			v(numero) += .5 * aristas[i]->getn().y;
-		}
-	}
-	u = u / ap;
-	v = v / ap;
-	uvec.push_back(u); uvec.push_back(v);
-	return uvec;
 }
 
 vec Elemento::operador_P1(int ne, double dt, double &f){
 	int n = aristas.size();
 	vec ecuacion(ne);
-	vector<vec> u_primaV, u_prima = this->u_prima(ne);
 	f=0;
 	Elemento vecino;
-	Nodo vel, dij;
+	Nodo vel;
+	double k=0;
 	for(int i = 0; i < n ; i++){
 		/// OBTENEMOS EL VECINO PARA SETEAR LA VELOCIDAD EN LA FRONTERA
 		vecino = aristas[i]->getVecino(*this);
 		switch(aristas[i]->isFront()){
 		case 1:
 			vel = aristas[i]->getuv();
+			k = *aristas[i] % (aristas[i]->getMidP() - this->midPoint);
+//			ecuacion(this->numero)  += k;
 			break;
 		case 2:
 			vel = Nodo(u,v);
+			k = *aristas[i] % (aristas[i]->getMidP() - this->midPoint);
 			break;
 		default:
-//			vel = Nodo( (vecino.u + u) /2.0 , (vecino.v + v)/2.0);
-//			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
-//			
-//			/// CALCULAMOS LA PARTE DIFUSIVA
-//			kdij =  aristas[i]->getModulo() * aristas[i]->getModulo() / (2.0 * this->ap);
+			vel = Nodo( (vecino.u + this->u) /2.0 , (vecino.v + this->v)/2.0);
 			
-			///   ARMA LAS ECUACIONES DE LOS P' DEL VECINO Y LOS SUMA CON EL DE P
-//			std::cout<<"1 "<<std::endl;
-			u_primaV = vecino.u_prima(ne);
-//			std::cout<<"1 "<<std::endl;
-			u_primaV[0] = u_primaV[0] + u_prima[0];
-			u_primaV[1] = u_primaV[1] + u_prima[1];
-			
-			*aristas[i] % (vecino.midPoint - this->midPoint);
-//			std::cout<<"1 "<<std::endl;
-			///  MULTIPLICAMOS POR LA NORMAL
-			u_primaV[0] = u_primaV[0] * aristas[i]->getn().x;
-			u_primaV[1] = u_primaV[1] * aristas[i]->getn().y;
-			
-//			std::cout<<"1 "<<std::endl;
-			///  SUMAMOS PARA OBTENER LA ECUACION DE LA ARISTA
-			ecuacion = ecuacion + u_primaV[0] + u_primaV[1];
-			
-//			/// AGREGAMOS LOS VALORES CALCULADOS A LA ECUACION
-//			ecuacion(numero)+= kdij;
-//			ecuacion(vecino.numero) = -kdij;
+			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
+			k = aristas[i]->getModulo() / ( *aristas[i] % (vecino.midPoint - this->midPoint) );
+			k*= ( this->area / this->ap);
+			ecuacion(vecino.numero) -= k;
+			ecuacion(this->numero)  += k;
 			break;
 		}
-		*aristas[i] % (aristas[i]->getMidP() - this->midPoint);
 		/// AGREGAMOS LA VELOCIDAD U^(1 + 1/2)
 		f-= (*aristas[i] * vel) * aristas[i]->getModulo();
-		
 	}
 	return ecuacion;
 }
@@ -162,29 +141,37 @@ void Elemento::setuv(double u, double v){
 
 void Elemento::setp_prima(double p_Prima){ 
 	this->p_prima = p_Prima;
-	this->p += alpha_prima*p_Prima; }
+	this->p += alpha_prima*p_Prima; 
+}
 
 double Elemento::operador_P2(double dt){
 	
-	int n = aristas.size();
-	double u_prima =0, v_prima =0;
+	mat m(2);
+	vec b(2), g(2);
 	
 	Elemento vecino;
-	for(int i = 0; i < n ; i++){
-		/// OBTENEMOS EL VECINO PARA SETEAR LA VELOCIDAD EN LA FRONTERA
+	for(int i = 0; i < 2 ; i++){
 		if (aristas[i]->isFront() == 0){
-			*aristas[i] % (aristas[i]->getMidP() - this->midPoint);
 			vecino = aristas[i]->getVecino(*this);
-			u_prima += (this->p_prima + vecino.p_prima) * aristas[i]->getn().x * aristas[i]->getModulo() / (this->ap * 2.0);
-			v_prima += (this->p_prima + vecino.p_prima) * aristas[i]->getn().y * aristas[i]->getModulo() / (this->ap * 2.0);
-			break;
+			Nodo Dxy = vecino.midPoint - this->midPoint;
+			m(i,0) = Dxy.x; m(i,1) = Dxy.y;
+			b(i) = vecino.p_prima - this->p_prima;
+		}else{
+			Nodo Dxy = aristas[i]->getMidP() - this->midPoint;
+			m(i,0) = Dxy.x; m(i,1) = Dxy.y;
+			b(i) =  0;
 		}
-		
 	}
-	u = u - u_prima;
-	v = v - v_prima;
+
+	m.gauss(b,g);
 	
-	double error = u_prima*u_prima + v_prima*v_prima;
+	double 	gradx = g(0) * this->area / this->ap,
+			grady = g(1) * this->area / this->ap;
+	
+	u = u - gradx;
+	v = v - grady;
+	
+	double error = gradx * gradx + grady * grady;
 	return error;
 }
 
@@ -198,7 +185,7 @@ Elemento::Elemento(vector< vector<Nodo>::iterator > n, int id){
 	nodos = n; numero = id;
 	
 	/// ASIGNAMOS EL VALOR DE LAS VARIABLES
-	u = v = .0;
+	u = v = p = p_prima = .0;
 	
 	/// CALCULAMOS EL PUNTO MEDIO
 	Nodo aux = *nodos[0];

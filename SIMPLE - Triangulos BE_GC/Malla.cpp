@@ -26,12 +26,24 @@ void Malla::operador_P1(double dt){
 	int n = elementos.size();
 	double f;
 	
-	for(int i = 0; i < n ; i++){
-		M.setRow(i, elementos[i].operador_P1(n, dt, f)); F(i) = f;}
+	for(int i = 0; i < n ; i++){ M.setRow(i, elementos[i].operador_P1(n, dt, f)); F(i) = f;}
+	
+//	
+//	for(int i = 0; i < n ; i++){
+//		for(int j=0;j<4;j++){
+//			std::cout<<M(i,j)<<" , ";
+//		}
+//		std::cout<<F(i)<<std::endl;
+//	}
 	
 	M.gradConjugado(F, P);
 	
-	for(int i = 0; i<n ; i++) elementos[i].setp_prima(P(i));
+	for(int i = 0; i<n ; i++) {
+//		printf("%4.4f , ",P(i));
+		elementos[i].setp_prima(P(i));
+	}
+//	std::cout<<std::endl;
+//	std::cin>>f;
 }
 
 double Malla::operador_P2(double dt){
@@ -50,13 +62,13 @@ void Malla::primeraIte(){
 	for(int i = 0; i < nEle ; i++){
 		vector<vec> ecua = elementos[i].operador_CD(nEle, dt, f, ff);
 		U.setRow(ecua[0]); B(i*2)   = f;
-		U.setRow(ecua[1]); B(i*2+1) = ff;}
+		U.setRow(ecua[1]); B(i*2+1) = ff;
+//		std::cout<<f<<"  "<<ff<<std::endl;
+		}
 	
 	vec uv(nEle*2);
 	
 	U.GausSeidel(B,uv);
-	
-	std::cout<<"gaus seidel termino"<<std::endl;
 	
 	for(int i = 0; i < nEle ; i++) { elementos[i].setuv(uv(2*i),uv(2*i+1)); }
 	
@@ -67,25 +79,18 @@ void Malla::primeraIte(){
 	
 	M.gradConjugado(F, P);
 	
-	std::cout<<"gradiente termino"<<std::endl;
+	for(int i = 0; i<nEle ; i++) {
+//		std::cout<<i<<":  "<<P(i)<<std::endl;
+		elementos[i].setp_prima(P(i));
+	}
 	
-	for(int i = 0; i<nEle ; i++) elementos[i].setp_prima(P(i));
 	std::cout<<"Error 0: "<<operador_P2(dt)<<std::endl;
-//	addvel();
-//	defVel();
+	addvel();
+	defVel();
 }
 
 void Malla::addvel(){ for(int i=0;i<elementos.size(); i++) elementos[i].setVelNodos() ; }
-void Malla::defVel(){
-	for(int i=0;i<nodos.size();i++) nodos[i].defuvp();
-	
-	min = max = sqrt(nodos[0].u * nodos[0].u  + nodos[0].v * nodos[0].v);
-	for(int i=1;i<nodos.size();i++){
-		double uv = sqrt(nodos[i].u * nodos[i].u  + nodos[i].v * nodos[i].v);
-		max = (uv>max)? uv : max;
-		min = (uv<min)? uv : min;
-	}	
-}
+void Malla::defVel(){ for(int i=0;i<nodos.size();i++) nodos[i].defuvp(); }
 
 double Malla::iterar(double dt){
 	operador_CD(dt);
@@ -185,12 +190,6 @@ double Malla::makeMalla(mdouble nods, mint e, mdouble cond){
 	cout<<"ELIMINAMOS LAS ARI DE LOS NODOS"<<endl;
 	
 	h=aristas[0].getModulo();
-//	double ch = 0;
-//	for(int i=1;i<nAri;i++){
-//		h+=aristas[i].getModulo();
-//		ch++;
-//	}
-//	h = h/ch;
 	
 	U.setSizeCeros(nEle*2,cnod+2);
 	M.setSizeCeros(nEle,cnod+2);
