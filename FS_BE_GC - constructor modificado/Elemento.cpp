@@ -203,12 +203,46 @@ Elemento::Elemento(vector< vector<Nodo>::iterator > n, int id){
 	/// ASIGNAMOS EL VALOR DE LAS VARIABLES
 	u = v = u_12 = v_12	= .0;
 	
+	
+	
 	/// CALCULAMOS EL PUNTO MEDIO
-	Nodo aux = *nodos[0];
-	double nsize = n.size();
-	for(int i=1;i<nsize;i++)
-		aux= aux + *nodos[i];
-	midPoint = aux / nsize;
+	mat M(2);
+	vec F(2), v(2);
+	int nn = nodos.size();
+	for(int i=0;i<nn-1;i++){
+		double dx=0, dy=0;
+		
+		dx = nodos[i]->x - nodos[i+1]->x;
+		dy = nodos[i]->y - nodos[i+1]->y;
+		
+		Nodo mid = (*nodos[i] + *nodos[i+1]) / 2.0;
+		
+		if(dy != 0){
+			M(i,0) = dx / dy;
+			M(i,1) = 1.0;
+			F(i) = mid.y + dx / dy * mid.x;
+		}else{
+			M(i,0) = 1.0;
+			M(i,1) = 0;
+			F(i) = mid.x;
+		}
+	}
+	M.gauss(F,v);
+	
+	midPoint.x = v(0); midPoint.y = v(1);
+	
+	for(int i=0 ; i < nn; i++){
+		Nodo mid = ( *nodos[i] + *nodos[ (i+1) % nn ] ) / 2.0;
+		if( ( mid - *nodos[ (i+2) % nn ] ) * ( mid - midPoint )  < 0.001 ){
+			Nodo aux = *nodos[0];
+			double nsize = n.size();
+			for(int i=1;i<nsize;i++)
+				aux= aux + *nodos[i];
+			midPoint = aux / nsize;
+			break;
+		}
+	}
+	
 	/// CALCULAMOS EL AREA
 	double ux = nodos[1]->x - nodos[0]->x,
 		uy = nodos[1]->y - nodos[0]->y,
