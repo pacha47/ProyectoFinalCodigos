@@ -46,7 +46,7 @@ int main (int argc, char **argv) {
 	
 	m.primeraIte();
 	
-	iteraciones = 6000;
+	iteraciones = 6;
 	
 	int i=0, ii=2;
 	double ite_e=10;

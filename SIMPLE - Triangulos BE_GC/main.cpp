@@ -18,7 +18,7 @@ mdouble nodos, ncond;
 mint ele;
 Malla m;
 int iteraciones;
-double Re, dt, e, alpha_prima = .1;
+double Re, dt, e, alpha_prima = .2;
 
 void load(ifstream &f,mint &elementos, mdouble &nodos, mdouble &contorno);
 
@@ -28,13 +28,13 @@ int main (int argc, char **argv) {
 	
 	/// CARGAMOS LOS ARCHIVOS
 //	ifstream file(argv[1], ios::in);
-	ifstream file("Triangulos.dat", ios::in);
+	ifstream file("Cuadrado crusado TRIAN.dat", ios::in);
 	
 //	ifstream file("Cuadrado crusado.dat", ios::in);
 	
 	
 //	FILE *fs = fopen(argv[2],"w");
-	FILE *fs = fopen("Triangulos.post.res","w");
+	FILE *fs = fopen("Cuadrado crusado TRIAN.post.res","w");
 	
 //	FILE *fs = fopen("Cuadrado crusado.post.res","w");
 	
@@ -56,6 +56,8 @@ int main (int argc, char **argv) {
 	m.addvel();
 	m.defVel();
 	m.write(fs);
+	
+	iteraciones = 10;
 	
 	while (ite_e>e && iteraciones>i && ite_e < 1e4){
 		ite_e = m.iterar(dt);

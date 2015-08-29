@@ -19,6 +19,7 @@ private:
 	int numero;
 	vector< vector<Arista>::iterator > aristas;
 	vector< vector<Nodo>::iterator > nodos;
+//	vector<double> dN;
 	
 public:
 	

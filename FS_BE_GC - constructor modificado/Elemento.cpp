@@ -193,7 +193,8 @@ double Elemento::operador_P2(double dt){
 
 
 void Elemento::setVelNodos(){ 
-	for(int i = 0 ; i < nodos.size() ; i++) nodos[i]->adduvp(u,v,p); }
+	for(int i = 0 ; i < nodos.size() ; i++)  nodos[i]->adduvp(u,v,p);
+}
 
 ///            CONSTRUCTOR
 Elemento::Elemento(vector< vector<Nodo>::iterator > n, int id){
@@ -242,6 +243,11 @@ Elemento::Elemento(vector< vector<Nodo>::iterator > n, int id){
 			break;
 		}
 	}
+	
+//	for(int i=0;i < nn; i++){
+//		dN.push_back( sqrt( (*nodos[i] - midPoint) * (*nodos[i] - midPoint) ) ) ;}
+	
+	
 	
 	/// CALCULAMOS EL AREA
 	double ux = nodos[1]->x - nodos[0]->x,
