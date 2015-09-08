@@ -3,7 +3,7 @@
 #include <cmath>
 
 string s;
-extern double u, alpha_p, error_vel;
+extern double u, error_vel;
 extern int ite_vel, problema; 
 
 /// Funciones globales

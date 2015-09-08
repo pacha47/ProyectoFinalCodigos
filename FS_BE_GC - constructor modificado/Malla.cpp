@@ -59,7 +59,7 @@ void Malla::primeraIte(){
 	
 	U.GausSeidel(B,uv);
 	
-	std::cout<<"ENTRO PRIMERA ITE"<<std::endl;
+//	std::cout<<"ENTRO PRIMERA ITE"<<std::endl;
 	
 	for(int i = 0; i < nEle ; i++) {
 		elementos[i].setu12(uv(2*i));
@@ -72,6 +72,7 @@ void Malla::primeraIte(){
 		M.setRow(elementos[i].operador_P1(nEle, dt, f)); F(i) = f;}
 	
 	M.gradConjugado(F, P);
+//	M.GausSeidel(F,P);
 	
 	for(int i = 0; i<nEle ; i++) elementos[i].setp(P(i));
 	std::cout<<"Error 0: "<<operador_P2(dt)<<std::endl;

@@ -23,9 +23,10 @@ Malla m;
 /// iteraciones son las que hace hasta la convergencia
 /// ite_vel son las que hace para estabilizar la velocidad (invento mio)
 int iteraciones, ite_vel = 5;
+/// alpha_p es el coeficiente de actualizaci√≥n de P = P + alpha_p * P'
 /// max_error es el error maximo permitido entre las iteraciones
 /// error_vel es un corte para la iteraciones en la velocidad (invento mio)
-double Re, max_error = 1e-8, error_vel = 1e-8, dt = .0;
+double Re, alpha_p = .3, max_error = 1e-8, error_vel = 1e-8, dt = .0;
 
 /// FUNCIONES ADICIONALES
 void load(ifstream &f,mint &elementos, mdouble &nodos, mdouble &contorno);
@@ -34,10 +35,14 @@ int main (int argc, char **argv) {
 	
 	/// CARGAMOS LOS ARCHIVOS
 //	ifstream file(argv[1], ios::in);
-	ifstream file("prueba.dat", ios::in);
+//	ifstream file("SIMPLE-Re400.dat", ios::in);
+	ifstream file("DC.dat", ios::in);
+	
 	
 //	FILE *fs = fopen(argv[2],"w");
-	FILE *fs = fopen("prueba.post.res","w");
+//	FILE *fs = fopen("SIMPLE-Re400.post.res","w");
+	FILE *fs = fopen("DC.post.res","w");
+	
 	/// CARGAMOS LOS ELEMENTOS Y NODOS
 	load(file,ele, nodos, ncond);
 	
@@ -49,17 +54,22 @@ int main (int argc, char **argv) {
 	cout<<"dt : "<<dt<<", Re : "<<Re<<endl;
 	cout<<"Iteraciones m·ximas : "<<iteraciones<<", tolerancia : "<<max_error<<endl<<endl;
 	
+//	iteraciones = 150;
+	
+	dt = 0.025;
+	
 	int ite=0;
 	do{
 		m.iterar();
 		cout<<"Error "<<++ite<<": "<<m.error<<endl;
-	}while(m.error>max_error && ite < iteraciones);
+//	}while(m.error>max_error && ite < iteraciones);
+	}while(ite < 3000);
 	
 	m.asignar();
 	
 	m.write(fs);
 	
-//	cin>>ite;
+	cin>>ite;
 	
 	return 0;
 }

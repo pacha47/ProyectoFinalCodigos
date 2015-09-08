@@ -10,19 +10,22 @@ extern double dt;
 
 /// ADIVINAMOS LA PRESION DEL ELEMENTO
 void Elemento::setPresion( double pb){
-	p = p_n = pb;}
+	p=pb;}
 /// LA RESTA ENTRE ELEMENTOS NO ES MAS QUE LA DIFERENCIA ENTRE SUS PRESIONES
 double Elemento::operator-(Elemento e){	
 	return (this->p - e.p);}
 
-double Elemento::operator<(Elemento e){	
-	return (this->p_n - e.p_n);}
+double Elemento::operator<(Elemento e){
+	return (this->p_correc - e.p_correc);}
 
 /// VERIFICAMOS DE QUE LADO ESTA LA ARISTA EN EL ELEMENTO
 bool Elemento::left(Nodo midA){/// si esta a la izquierda da >0
 	return ((midPoint - midA)*Nodo(1,0) > .0001)? true : false; }
 bool Elemento::top(Nodo midA){/// si esta en top da <0
 	return ((midPoint - midA)*Nodo(0,1) < -.0001)? true : false;
+}
+Elemento Elemento::getVecino(int i){
+	aristas[i]->getVecino(*this);
 }
 
 /// FUNCION PARA OBETENER LA ARISTA
@@ -42,7 +45,7 @@ vec Elemento::ecuaPresion(int n, double &f){
 	
 	/// VARIABLES NECESARIAS
 	vec ecua(n);
-
+	int nvecino;
 	/// OBTENEMOS LAS ARISTAS PARA CORREGIR LA PRESION
 	Arista top = getAri(Nodo(0,1)),
 		bot = getAri(Nodo(0,-1)),
@@ -58,46 +61,45 @@ vec Elemento::ecuaPresion(int n, double &f){
 //	}
 	
 	///  **************** TOP
-	Elemento veci = top.getVecino(*this);
-	f-= (top.getv() + (veci.p - this->p) * dt / top.modulo ); 
-	a = (top.isFront())? 0 : dt / top.modulo;
+	f-= top.getv(); 
+	a = (top.isFront())? 0 : top.modulo / top.getAp();
 	aij += a;
+	nvecino = top.getVecino(*this).numero;
 	/// AGREGAMOS EL ELEMENTO VECINO A LA ECUACION
-	ecua(veci.numero) = -a;
+	ecua(nvecino) = -a;
 	
 	///  **************** BOT
-	veci =  bot.getVecino(*this);
-	f+= (bot.getv() - (veci.p - this->p) * dt / bot.modulo);
-	a = (bot.isFront())? 0 : dt / bot.modulo;
+	f+= bot.getv();
+	a = (bot.isFront())? 0 : bot.modulo / bot.getAp();
 	aij += a;
+	nvecino = bot.getVecino(*this).numero;
 	/// AGREGAMOS EL ELEMENTO VECINO A LA ECUACION
-	ecua(veci.numero) = -a;
+	ecua(nvecino) = -a;
 	
 	///  **************** DER
-	veci =  der.getVecino(*this);
-	f-= (der.getu() + (veci.p - this->p) * dt / der.modulo );
-	a = (der.isFront())? 0 : dt / der.modulo;
+	f-= der.getu();
+	a = (der.isFront())? 0 : der.modulo / der.getAp();
 	aij += a;
+	nvecino = der.getVecino(*this).numero;
 	/// AGREGAMOS EL ELEMENTO VECINO A LA ECUACION
-	ecua(veci.numero) = -a;
+	ecua(nvecino) = -a;
 	
 	///  **************** IZQ
-	veci = izq.getVecino(*this);
-	f+= (izq.getu() - (veci.p - this->p) * dt / izq.modulo);
-	a = (izq.isFront())? 0 : dt / izq.modulo;
+	f+= izq.getu();
+	a = (izq.isFront())? 0 : izq.modulo / izq.getAp();
 	aij += a;
+	nvecino = izq.getVecino(*this).numero;
 	/// AGREGAMOS EL ELEMENTO VECINO A LA ECUACION
-	ecua(veci.numero) = -a;
-	
+	ecua(nvecino) = -a;
 	/// AGREGAMOS LA VARIABLE DEL ELEMENTO CENTRAL
-	ecua(this->numero) = aij;
+	ecua(numero) = aij;
 	
 	return ecua;
 }
 /// CORREGIMOS LA PRESION
-void Elemento::corregir(double presion){
-	this->p_n = this->p;
-	this->p = presion;
+void Elemento::corregir(double alpha, double prima){
+	this->p_correc = prima;
+	p += (alpha * this->p_correc);
 }
 
 /// ASIGNAMOS LAS PRESIONES A LOS NODOS DEL ELEMENTO
@@ -159,7 +161,6 @@ int id_ari(Nodo n1,Nodo n2){
 			if(n1.aris[i] == n2.aris[j]) return n1.aris[i];
 		}}
 	cout<<"ERROR NO ENCONTRO ARISTA EN COMUN Y ES CUALQUI ESO"<<endl;
-	return 0;
 }
 
 

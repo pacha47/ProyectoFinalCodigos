@@ -53,7 +53,7 @@ vec Elemento::ecuaPresion(int n, double &f){
 		izq = getAri(Nodo(-1,0));
 	/// DEFINIMOS EL BIJ (VELOCIDADES)
 	double a=0 , aij = 0;
-	f=0;
+	f=0.0;
 	
 //	if(izq.isFront() == 2 || der.isFront() == 2 || bot.isFront() == 2 || top.isFront() == 2){
 //		ecua(numero) = 1;
@@ -100,6 +100,7 @@ vec Elemento::ecuaPresion(int n, double &f){
 void Elemento::corregir(double alpha, double prima){
 	this->p_correc = prima;
 	p += (alpha * this->p_correc);
+//	cout<<numero<<" : "<<p<<endl;
 }
 
 /// ASIGNAMOS LAS PRESIONES A LOS NODOS DEL ELEMENTO

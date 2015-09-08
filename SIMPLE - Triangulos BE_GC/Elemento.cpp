@@ -130,7 +130,7 @@ vec Elemento::operador_P1(int ne, double dt, double &f){
 			break;
 		}
 		/// AGREGAMOS LA VELOCIDAD U^(1 + 1/2)
-		f-= (*aristas[i] * vel) * aristas[i]->getModulo();
+		f-= (*aristas[i] * vel) * aristas[i]->getModulo() * aristas[i]->getModulo() ;
 	}
 	return ecuacion;
 }

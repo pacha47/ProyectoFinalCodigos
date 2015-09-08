@@ -23,6 +23,8 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 	fu = fv = 0;
 	vector<double> dist;
 	
+//	fv-= 9.8 * this->area;
+	
 	for(int i = 0; i < n ; i++){
 		/// OBTENEMOS EL VECINO PARA SETEAR uj
 		vecino = aristas[i]->getVecino(*this, dist);
@@ -43,22 +45,28 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 			uj = Nodo(vecino.u,vecino.v);
 			u_f = uj * dist[1] + ui * dist[0]; 
 			/// CALCULAMOS EL VECTOR DIRECCION ENTRE LOS ELEMENTOS
-			*aristas[i] % (vecino.midPoint - midPoint);
+			
 			break;
 		}
-		
+		*aristas[i] % (vecino.midPoint - midPoint);
 		/// CALCULAMOS LA PARTE DIFUSIVA
 		D = aristas[i]->d_ij() / Re;
 		aP+=D;
 		
 		/// CALCULAMOS LA PARTE CONVECTIVA
 		double vn = aristas[i]->getModulo() * (*aristas[i] * u_f );
+		
+//		/// ESQUEMA DE DIFERENCIAS CENTRADAS
+//		C = vn * dist[1];
+//		aP+= vn * dist[0];
+		
 		if(vn > 0){
 			aP += vn;
 			C = 0;
 		}else{
 			C = vn;
 		}
+		
 		/// AGREGAMOS LA PRESION EN EL INSTANTE N
 		Pu -= (vecino.p * dist[1] + this->p * dist[0] ) * aristas[i]->getModulo() * aristas[i]->getn().x;
 		Pv -= (vecino.p * dist[1] + this->p * dist[0] ) * aristas[i]->getModulo() * aristas[i]->getn().y;
@@ -90,10 +98,11 @@ vec Elemento::operador_P1(int ne, double dt, double &f){
 	for(int i = 0; i < n ; i++){
 		/// OBTENEMOS EL VECINO PARA SETEAR LA VELOCIDAD EN LA FRONTERA
 		vecino = aristas[i]->getVecino(*this, dist);
-		double kdij = dt * aristas[i]->d_ij() / aristas[i]->getModulo();
+		double kdij = dt * aristas[i]->d_ij() / .5 / aristas[i]->getModulo();
 		switch(aristas[i]->isFront()){
 		case 1:
 			vel = aristas[i]->getuv();
+//			ecuacion(numero)+= kdij ;
 			break;
 		case 2:
 			vel = Nodo(u_12,v_12);
@@ -103,8 +112,8 @@ vec Elemento::operador_P1(int ne, double dt, double &f){
 		default:
 			vel = Nodo(vecino.u_12 * dist[1] + u_12 * dist[0], vecino.v_12 * dist[1] + v_12 * dist[0]);
 			/// AGREGAMOS LOS VALORES CALCULADOS A LA ECUACION
-			ecuacion(numero)+= kdij;
-			ecuacion(vecino.numero) -= kdij;
+			ecuacion(numero)+= kdij ;// aristas[i]->getModulo() ;
+			ecuacion(vecino.numero) -= kdij ;// aristas[i]->getModulo();
 			break;
 		}
 		*aristas[i] % (vecino.midPoint - midPoint);
@@ -112,7 +121,7 @@ vec Elemento::operador_P1(int ne, double dt, double &f){
 		f-= (*aristas[i] * vel) * aristas[i]->getModulo();
 		
 		/// AGREGAMOS LA PRESION EN EL INSTANTE ANTERIOR
-		f-= (vecino.p - this->p) * kdij;
+		f-= (vecino.p - this->p) * kdij ;
 	}
 	return ecuacion;
 }
@@ -169,7 +178,7 @@ double Elemento::operador_P2(double dt){
 			dij = vecino.midPoint - midPoint;
 			/// CALCULAMOS EL GRADIENTE DE PRESION
 			gradP = ((vecino.p - this->p) - (vecino.pn - this->pn));
-			gradP *= dt /( (*aristas[i] % dij ) * aristas[i]->getModulo());
+			gradP *= dt / ( (*aristas[i] % dij ) * aristas[i]->getModulo());
 			break;
 		}
 		
@@ -180,7 +189,7 @@ double Elemento::operador_P2(double dt){
 		Nodo N = (aristas[i]->isFront() == 2) ? aristas[2]->getn() : aristas[i]->getn();;
 		/// SETEAMOS LOS COEFICIENTE DE LA MATRIZ Y EL TERMINO DERECHO
 		M(i,0) = N.x; M(i,1) = N.y;
-		F(i) = N.x*u_f + N.y*v_f - gradP;
+		F(i) = N.x*u_f + N.y*v_f - gradP / .5;
 	}
 	
 	M.gauss(F,v);

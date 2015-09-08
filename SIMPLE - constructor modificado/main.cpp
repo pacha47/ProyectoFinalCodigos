@@ -5,6 +5,8 @@
 #include <cmath>
 #include <string.h>
 
+#include <time.h>
+
 using namespace std;
 
 typedef vector<vector<double> > mdouble;
@@ -26,22 +28,37 @@ int iteraciones, ite_vel = 5;
 /// alpha_p es el coeficiente de actualizaci√≥n de P = P + alpha_p * P'
 /// max_error es el error maximo permitido entre las iteraciones
 /// error_vel es un corte para la iteraciones en la velocidad (invento mio)
-double Re, alpha_p = .3, max_error = 1e-8, error_vel = 1e-8, dt = .0;
+double Re, alpha_p = .3, alpha_v=.7, max_error = 1e-8, error_vel = 1e-8, dt = .0;
 
 /// FUNCIONES ADICIONALES
 void load(ifstream &f,mint &elementos, mdouble &nodos, mdouble &contorno);
 
 int main (int argc, char **argv) {
 	
+	
+	
 	/// CARGAMOS LOS ARCHIVOS
 //	ifstream file(argv[1], ios::in);
-	ifstream file("Cuadrados.dat", ios::in);
+//	ifstream file("SIMPLE-Re400.dat", ios::in);
+//	ifstream file("DrivenCabity.dat", ios::in);
+	ifstream file("DC.dat", ios::in);
+	
+	
 	
 //	FILE *fs = fopen(argv[2],"w");
-	FILE *fs = fopen("Cuadrados.post.res","w");
+//	FILE *fs = fopen("SIMPLE-Re400.post.res","w");
+//	FILE *fs = fopen("DrivenCabity.post.res","w");
+	FILE *fs = fopen("DC.post.res","w");
+	
+	
+	
 	/// CARGAMOS LOS ELEMENTOS Y NODOS
 	load(file,ele, nodos, ncond);
 	
+	dt = .01;
+	Re = 1000;
+	alpha_p = .1;
+	max_error = 2e-15;
 	/// ASIGNAMOS LA MALLA LEIDA
 	double h = m.makeMalla(nodos,ele, ncond);
 	
@@ -50,18 +67,42 @@ int main (int argc, char **argv) {
 	cout<<"dt : "<<dt<<", Re : "<<Re<<endl;
 	cout<<"Iteraciones m·ximas : "<<iteraciones<<", tolerancia : "<<max_error<<endl<<endl;
 	
-	dt = 0.03;
-	iteraciones = 500;
+	/// 		VARIABLES TEMPORALES
+	time_t t = time(0);
+	tm* b = localtime(&t);
+	
+	FILE *tf = fopen("Tiempos.txt","w");
+	fprintf(tf,"Metodo SIMPLE \n");
+	fprintf(tf,"Re: %f \n",Re);
+	fprintf(tf,"alpha_p: %f   alpha_v: %f \n",alpha_p,alpha_v);
+	fprintf(tf,"Tiempo de inicio: \n");
+	fprintf(tf,asctime(b) );
 	
 	int ite=0;
+//	cin>>ite;
+	iteraciones = 3000;
 	do{
 		m.iterar();
 		cout<<"Error "<<++ite<<": "<<m.error<<endl;
 	}while(m.error>max_error && ite < iteraciones);
+//	}while(ite < 5000);
 	
+		
+		
+//	cout<<endl<< " ******************************************** " <<endl;
+//	m.iterar();
+//	cout<<"Error "<<++ite<<": "<<m.error<<endl;
+		
+		
+		
 	m.asignar();
 	
 	m.write(fs);
+	
+	t = time(0);
+	b = localtime(&t);
+	fprintf(tf,"Tiempo de fin: \n");
+	fprintf(tf,asctime(b) );
 	
 	cin>>ite;
 	

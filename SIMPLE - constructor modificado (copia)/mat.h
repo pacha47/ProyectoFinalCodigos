@@ -28,8 +28,6 @@ struct mat{
 	void gradConjugado(vec b, vec &x);
 	void GausSeidel(vec b, vec &x);
 	void setSizeCeros(int n, int m);
-	
-	void showi(int i);
 };
 
 

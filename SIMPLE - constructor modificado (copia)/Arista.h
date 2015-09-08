@@ -2,6 +2,7 @@
 #define INC_ARISTA_H
 
 #include <vector>
+#include "vec.h"
 
 using namespace std;
 
@@ -12,41 +13,45 @@ class Arista{
 	
 private:
 	
+public:
+	
 	Nodo normal, midPoint;
 	vector<vector<Nodo>::iterator> nodos;
 	vector<vector<Elemento>::iterator> elementos;
 	
 	int tipoFront, id;
-	double u,v,p, modulo, dij;
-	vector<double> dist;
+	double u,v,p, modulo,
+		oldV, oldU, ap;
 	
-public:
-	/// CONSTRUSTORES Y SETEADORES
 	Arista(){tipoFront = 0; modulo = -1;}
+	
 	void addElemento(vector<Elemento>::iterator e);
 	void addNodos(vector<Nodo>::iterator n1,vector<Nodo>::iterator n2);
+	
+	
+	/// ***************************** NS *****************************
 	void setFront(double u, double v);
 	void setFront(double p);
-	void setId(int idAri){id = idAri;}
+	void adivinar();
+	void setId(int id);
+	double iterar();
+	double corregir();
+	double getAp(){return ap;};
+	double getv(){return v;}
+	double getu(){return u;}
+	void addvel();
+	vec setVecinos(int n);
+	vec ecuaVelocidad(int n, double &f);
+	void asignarUV(double uv);
+	/// ************************************************************** 
 	
-	
-	/// OPERADORES 
 	bool operator==(Arista a);
 	double operator*(Nodo N);
-	double operator%(Nodo N);
-	
-	/// FUNCIONES BASICAS
 	Elemento getVecino(Elemento e);
-	Elemento getVecino(Elemento e, vector<double> &d);
+	double getmodulo();
 	int isFront(){return tipoFront;}
-	double getModulo();
-	Nodo getuv();
-	Nodo getn();
-	double getp();
-	Nodo getMidP();
+	Nodo getNodo(int i){return *nodos[i];}
 	
-	double d_ij(){return dij;}
-	Nodo t();
 };
 
 

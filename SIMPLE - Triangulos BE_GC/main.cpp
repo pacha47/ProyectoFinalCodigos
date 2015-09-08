@@ -53,19 +53,19 @@ int main (int argc, char **argv) {
 	
 	int i=1, ii=2;
 	double ite_e=10;
-	m.addvel();
-	m.defVel();
-	m.write(fs);
+//	m.addvel();
+//	m.defVel();
+//	m.write(fs);
 	
-	iteraciones = 10;
+	iteraciones = 100;
 	
 	while (ite_e>e && iteraciones>i && ite_e < 1e4){
 		ite_e = m.iterar(dt);
 		cout<<"Error "<<i++<<": "<<ite_e<<endl;
 //		if( i%2 == 0 ) {
-			m.addvel();
-			m.defVel();
-			m.write(fs,ii++);
+//			m.addvel();
+//			m.defVel();
+//			m.write(fs,ii++);
 //		}
 	}
 	
@@ -75,9 +75,9 @@ int main (int argc, char **argv) {
 //		cout<<"Error "<<++i<<": "<<ite_e<<endl;
 //	}
 	
-//	m.addvel();
-//	m.defVel();
-//	m.write(fs);
+	m.addvel();
+	m.defVel();
+	m.write(fs);
 	
 	cin>>i;
 	

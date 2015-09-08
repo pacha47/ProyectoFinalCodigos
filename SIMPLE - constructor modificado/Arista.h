@@ -23,31 +23,31 @@ public:
 	double u,v,p, modulo,
 		oldV, oldU, ap;
 	
-	Arista(){tipoFront = 0; modulo = -1;}
+	Arista(){tipoFront = u = v = p = oldU = oldV = .0; modulo = -1;}
 	
 	void addElemento(vector<Elemento>::iterator e);
-	void addNodos(vector<Nodo>::iterator n1,vector<Nodo>::iterator n2);
+	void addNodos(vector<Nodo>::iterator &n1,vector<Nodo>::iterator &n2);
 	
 	
 	/// ***************************** NS *****************************
-	void setFront(double u, double v);
-	void setFront(double p);
+	void setFront(double &u, double &v);
+	void setFront(double &p);
 	void adivinar();
-	void setId(int id);
+	void setId(int &id);
 	double iterar();
 	double corregir();
-	double getAp(){return ap;};
-	double getv(){return v;}
-	double getu(){return u;}
+	double& getAp(){return ap;};
+	double& getv(){return v;}
+	double& getu(){return u;}
 	void addvel();
-	vec setVecinos(int n);
-	vec ecuaVelocidad(int n, double &f);
-	void asignarUV(double uv);
+	vec setVecinos(int &n);
+	vec ecuaVelocidad(int &n, double &f);
+	void asignarUV(double &uv);
 	/// ************************************************************** 
 	
-	bool operator==(Arista a);
-	double operator*(Nodo N);
-	Elemento getVecino(Elemento e);
+	bool operator==(Arista &a);
+	double operator*(Nodo &N);
+	Elemento getVecino(Elemento &e);
 	double getmodulo();
 	int isFront(){return tipoFront;}
 	Nodo getNodo(int i){return *nodos[i];}

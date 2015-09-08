@@ -28,10 +28,15 @@ int main (int argc, char **argv) {
 	
 	/// CARGAMOS LOS ARCHIVOS
 //	ifstream file(argv[1], ios::in);
-	ifstream file("Cuadrado crusado TRIAN.dat", ios::in);
+//	ifstream file("Cuadrado crusado TRIAN.dat", ios::in);
+//	ifstream file("FS-Cabidad45-Re100.dat", ios::in);
+	ifstream file("DC.dat", ios::in);
+	
 	
 //	FILE *fs = fopen(argv[2],"w");
-	FILE *fs = fopen("Cuadrado crusado TRIAN.post.res","w");
+//	FILE *fs = fopen("Cuadrado crusado TRIAN.post.res","w");
+//	FILE *fs = fopen("FS-Cabidad45-Re100.post.res","w");
+	FILE *fs = fopen("DC.post.res","w");
 	
 	/// CARGAMOS LOS ELEMENTOS Y NODOS
 	load(file,ele, nodos, ncond);
@@ -46,7 +51,7 @@ int main (int argc, char **argv) {
 	
 	m.primeraIte();
 	
-	iteraciones = 6;
+//	iteraciones = 29;
 	
 	int i=0, ii=2;
 	double ite_e=10;

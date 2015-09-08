@@ -103,29 +103,18 @@ double Malla::makeMalla(mdouble nods, mint e, mdouble cond){
 	/// VARIABLES PARA CALCULAR EL CAMPO DE VELOCIDAD
 	
 	B = vec(id_ari);
-	U.setSizeCeros(id_ari, cnod*2+2);
+	U.setSizeCeros(id_ari, cnod+2);
 	
 	for(int i=0;i<id_ari;i++) U.setRow(aristas[i].setVecinos(id_ari));
 	
 	///          VARIABLES PARA CALCULAR LA PRESION
 	F = vec(nEle);
 	
-	K.setSizeCeros(nEle,cnod*2+2);
+	K.setSizeCeros(nEle,cnod+2);
 	
 	for(int i=0;i<nEle;i++) K.setRow(elementos[i].setVecinos(nEle));
 	
 	cout<<"FIN -  CARGA MALLA"<<endl;
-	
-	
-	
-	
-	/// mostramos las aristas
-//	for(int i=0;i<aristas.size();i++){
-////		cout<<aristas[i].modulo<<"; n : ("<<aristas[i].normal.x<<","<< aristas[i].normal.y<< ")" <<endl;
-//		printf("%d: %.7f %.7f \n", i , aristas[i].midPoint.x,aristas[i].midPoint.y );
-//	}
-	
-	
 	
 	return h;
 }
@@ -143,23 +132,12 @@ void Malla::iterar(){
 	vec p_prima(an);
 	U.GausSeidel(B,p_prima);
 	
-//	cout<<endl<<"ECUACION DE MOVIMIENTO"<<endl;
-	
-//	for(int i=0;i<an;i++){
-//		U.showi(i);
-//		cout<<"   "<<B(i)<<endl; }
-//	cout<<endl<<"RESULTADOS:"<<endl;
-//	for(int i=0;i<an;i++)
-//		cout<<i<<":  "<<p_prima(i)<<endl;
-	
-	
 	for(int i=0;i<an;i++) aristas[i].asignarUV( p_prima(i) );
 	
 	for(int i=0;i<ae;i++){
 		K.setRow(i, elementos[i].ecuaPresion(ae,f));
 		F(i) = f;
 	}
-	
 	corregir();
 }
 
@@ -171,26 +149,13 @@ void Malla::corregir(){
 	
 	K.gradConjugado(F,p_prima);
 	
-//	cout<<endl<<"ECUACION DE CONTINUIDAD"<<endl;
-//	for(int i=0;i<ae;i++){
-//		K.showi(i);
-//		cout<<F(i)<<endl;
-//	}
-//	cout<<endl<<"RESULTADOS"<<endl;
-//	for(int i=0;i<ae;i++){
-//		cout<<i<<": "<<p_prima(i)<<endl;
-//	}
-	
-	
-//	cout<<endl<<"PRESIONES N+1 : "<<endl;
 	for(int i=0;i<ae;i++){
-		elementos[i].corregir(alpha_p, p_prima(i));
+		double p_cor = p_prima(i);
+		elementos[i].corregir(alpha_p, p_cor);
 	}
 	error = 0;
 	
-//	cout<<endl<<"VELOCIDADES N+1 : "<<endl;
 	for(int i=0;i<an;i++){
-//		cout<<i<<": ";
 		error += aristas[i].corregir();}
 //	asignar();
 }

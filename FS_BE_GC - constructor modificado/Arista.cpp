@@ -102,3 +102,9 @@ double Arista::operator%(Nodo N){
 	if(p<0){
 		normal.x *= -1.0; normal.y *= -1.0; p *= -1.0;}
 	return p;}
+
+Nodo Arista::t(){
+	return (*nodos[0] - *nodos[1]);
+}
+
+

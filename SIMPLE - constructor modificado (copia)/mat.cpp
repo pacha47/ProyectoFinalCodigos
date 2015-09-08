@@ -40,7 +40,7 @@ void mat::gradConjugado(vec b, vec &x){
 		x = x + p*alpha;
 		g = ((*this) * x) - b;
 		
-		if(g*g / n < 1e-20 ) return;
+		if(g*g < 1e-10 ) return;
 		
 		if(i++ > m.size()){
 			std::cout<<"NO CONVERGE GRADIENTE CONJUGADO"<<std::endl;
@@ -68,7 +68,7 @@ void mat::GausSeidel(vec b, vec &x){
 			k=ap=0;
 		}
 		error = (*this) * x - b;
-		if (error*error / n < 1e-20) return;}
+		if (error*error < 1e-10) return;}
 }
 
 void mat::setRow(vec r){
@@ -148,30 +148,6 @@ mat mat::operator-(mat m){
 		}}
 	return m_m;
 }
-
-
-
-using namespace std;
-#include <fstream>
-
-void mat::showi(int i){
-	cout<<i;
-	for(int j=0;ceros[i][j] != -1 ;j++)
-		printf(", %.7f ", i,m[i][j] );
-	cout<<endl;
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
