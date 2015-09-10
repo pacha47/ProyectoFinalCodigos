@@ -49,8 +49,6 @@ int main (int argc, char **argv) {
 	cout<<"dt : "<<dt<<", Re : "<<Re<<endl;
 	cout<<"Iteraciones máximas : "<<iteraciones<<", tolerancia : "<<e<<endl<<endl;
 	
-	m.primeraIte();
-	
 //	iteraciones = 29;
 	
 	int i=0, ii=2;

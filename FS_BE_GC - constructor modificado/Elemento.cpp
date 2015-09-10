@@ -201,6 +201,88 @@ double Elemento::operador_P2(double dt){
 }
 
 
+vector<int> Elemento::Vecino(Elemento &P){
+	vector<int> vecis;
+	for(int i = 0; i<aristas.size(); i++){
+		Elemento aux = aristas[i]->getVecino(*this);
+		if(aux.numero != P.numero && aux.numero != this->numero)
+			vecis.push_back(aux.numero);
+	}
+	return vecis;
+}
+
+vector<vec> Elemento::SetVecinos(int ne){
+	vec vu(ne*2), vv(ne*2);
+	for(int i=0;i<aristas.size();i++){
+		Elemento aux = aristas[i]->getVecino(*this);
+		if(aux.numero != this->numero){
+			vector<int> a = aux.Vecino(*this);
+			for(int j=0;j<a.size();j++)
+				vu(a[j]*2) = vv(a[j]*2+1) = 1; 
+			vu(aux.numero*2) = vv(aux.numero*2 + 1) = 1;
+		}
+	}
+	vu(this->numero*2) = vv(this->numero*2 + 1) = 1;
+	vector<vec> vecis; vecis.push_back(vu); vecis.push_back(vv);
+	return vecis;
+}
+
+vec Elemento::SetVecinosP(int ne){
+	vec vecis(ne);
+	for(int i=0;i<aristas.size();i++)
+		vecis((aristas[i]->getVecino(*this)).numero) = 1;
+	vecis(this->numero) = 1;
+	return vecis;
+}
+
+
+void Elemento::SetQuick(){
+	Elemento N1, N2 , N;
+	int na = aristas.size();
+	double m1,m2,b1,b2, a1, a2;
+	for(int i=0;i<na;i++){
+		if( !aristas[i]->isFront() ){
+			N = aristas[i]->getVecino(*this);
+			/// CALCULAMOS LA PENDIENTE Y ORDENADA DE ORIGEN 
+			m1 = (N.midPoint.y - this->midPoint.y) / (N.midPoint.x - this->midPoint.x);
+			b1 = this->midPoint.y - m1 * this->midPoint.x;
+			
+			if( !aristas[ (i+1)%na ]->isFront() ){ N1 = aristas[ (i+1)%na ]->getVecino(*this);}
+			if( !aristas[ (i+2)%na ]->isFront() ){ N2 = aristas[ (i+2)%na ]->getVecino(*this);}
+			
+			/// CALCULAMOS LA PENDIENTE Y ORDENADA DE ORIGEN 
+			m2 = (N1.midPoint.y - N2.midPoint.y) / ( N1.midPoint.x - N2.midPoint.x);
+			b2 = N1.midPoint.y - m2 * N1.midPoint.x;
+			
+			/// INICIALIZAMOS EL SISTEMA PARA OBTENER EL PUNTO DE INTERSECCION
+			mat m(2);
+			vec b(2),x(2);
+			
+			m(0,0) = m(1,0) = 1;
+			m(0,1) = -m1;
+			m(1,1) = -m2;
+			/// RESOLVEOS
+			m.gauss(b,x);
+			
+			/// INICIALIZAMOS 
+			Nodo E(x(1),x(0));
+			
+			/// CALCULAMOS LAS DISTANCIAS
+			a1 = sqrt( (E - N2.midPoint) * (E.midPoint - N2.midPoint));
+			a2 = sqrt( (E - N1.midPoint) * (E.midPoint - N1.midPoint));
+			double d = sqrt ( (N1.midPoint-N2.midPoint) * (N1.midPoint-N2.midPoint) );
+			a1 /= d; a2 /= d;
+			
+			
+			
+		}
+	}
+	
+}
+
+
+
+
 void Elemento::setVelNodos(){ 
 	for(int i = 0 ; i < nodos.size() ; i++)  nodos[i]->adduvp(u,v,p);
 }

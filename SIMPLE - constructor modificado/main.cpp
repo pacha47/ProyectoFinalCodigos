@@ -39,16 +39,16 @@ int main (int argc, char **argv) {
 	
 	/// CARGAMOS LOS ARCHIVOS
 //	ifstream file(argv[1], ios::in);
-//	ifstream file("SIMPLE-Re400.dat", ios::in);
+	ifstream file("SIMPLE-Re400.dat", ios::in);
 //	ifstream file("DrivenCabity.dat", ios::in);
-	ifstream file("DC.dat", ios::in);
+//	ifstream file("DC.dat", ios::in);
 	
 	
 	
 //	FILE *fs = fopen(argv[2],"w");
-//	FILE *fs = fopen("SIMPLE-Re400.post.res","w");
+	FILE *fs = fopen("SIMPLE-Re400.post.res","w");
 //	FILE *fs = fopen("DrivenCabity.post.res","w");
-	FILE *fs = fopen("DC.post.res","w");
+//	FILE *fs = fopen("DC.post.res","w");
 	
 	
 	
@@ -57,7 +57,7 @@ int main (int argc, char **argv) {
 	
 	dt = .01;
 	Re = 1000;
-	alpha_p = .1;
+	alpha_p = .5;
 	max_error = 2e-15;
 	/// ASIGNAMOS LA MALLA LEIDA
 	double h = m.makeMalla(nodos,ele, ncond);

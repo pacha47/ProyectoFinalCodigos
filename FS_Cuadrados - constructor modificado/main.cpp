@@ -34,15 +34,17 @@ int main (int argc, char **argv) {
 	
 	/// CARGAMOS LOS ARCHIVOS
 //	ifstream file(argv[1], ios::in);
-	ifstream file("prueba.dat", ios::in);
+	ifstream file("DC.dat", ios::in);
 	
 //	FILE *fs = fopen(argv[2],"w");
-	FILE *fs = fopen("prueba.post.res","w");
+	FILE *fs = fopen("DC.post.res","w");
 	/// CARGAMOS LOS ELEMENTOS Y NODOS
 	load(file,ele, nodos, ncond);
 	
 	/// ASIGNAMOS LA MALLA LEIDA
 	double h = m.makeMalla(nodos,ele, ncond);
+	
+	dt = 0.01;
 	
 	cout<<endl<<"COMIENZA CALCULO CON:"<<endl;
 	

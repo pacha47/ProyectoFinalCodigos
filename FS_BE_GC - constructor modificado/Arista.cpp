@@ -72,7 +72,6 @@ Elemento Arista::getVecino(Elemento e, vector<double> &d){
 Elemento Arista::getVecino(Elemento e){
 	if(elementos.size() == 1) return e;
 	if(e == (*elementos[0]))  return (*elementos[1]);
-
 	return (*elementos[0]);
 }
 

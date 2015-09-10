@@ -32,7 +32,11 @@ public:
 	
 	double operador_P2(double dt);
 	
-	void setVelNodos();
+	/// FUNCIONES DE VECINDAD
+	vector<int> Vecino(Elemento &P);
+	vector<vec> SetVecinos(int ne);
+	vec 		SetVecinosP(int ne);
+	void 		setVelNodos();
 	
 	/// CONSTRUCTORES 
 	Elemento(){}
