@@ -44,39 +44,6 @@ double Malla::operador_P2(double dt){
 	return error;
 }
 
-void Malla::primeraIte(){
-	int nEle = elementos.size();
-	double f=0,ff=0;
-	
-	/// ECUACION DE VELOCIDAD
-	
-	for(int i = 0; i < nEle ; i++){
-		vector<vec> ecua = elementos[i].operador_CD(nEle, dt, f, ff);
-		U.setRow(ecua[0]); B(i*2)   = f;
-		U.setRow(ecua[1]); B(i*2+1) = ff;}
-	
-	vec uv(nEle*2);
-	
-	U.GausSeidel(B,uv);
-	
-	for(int i = 0; i < nEle ; i++) {
-		elementos[i].setu12(uv(2*i));
-		elementos[i].setv12(uv(2*i+1));
-	}
-	
-	/// ECUACION DE PRESION
-	
-	for(int i = 0; i < nEle ; i++){
-		M.setRow(elementos[i].operador_P1(nEle, dt, f)); F(i) = f;}
-	
-	M.gradConjugado(F, P);
-	
-	for(int i = 0; i<nEle ; i++) elementos[i].setp(P(i));
-	std::cout<<"Error 0: "<<operador_P2(dt)<<std::endl;
-//	addvel();
-//	defVel();
-}
-
 void Malla::addvel(){ for(int i=0;i<elementos.size(); i++) elementos[i].setVelNodos() ; }
 void Malla::defVel(){
 	for(int i=0;i<nodos.size();i++) nodos[i].defuvp();
@@ -90,8 +57,11 @@ void Malla::defVel(){
 }
 
 double Malla::iterar(double dt){
+//	cout<<"CD"<<endl;
 	operador_CD(dt);
+//	cout<<"P1"<<endl;
 	operador_P1(dt);
+//	cout<<"P2"<<endl;
 	double error = operador_P2(dt);
 //	addvel();
 //	defVel();
@@ -194,9 +164,24 @@ double Malla::makeMalla(mdouble nods, mint e, mdouble cond){
 //	}
 //	h = h/ch;
 	
-	U.setSizeCeros(nEle*2,cnod+2);
-	M.setSizeCeros(nEle,cnod+2);
+	cout<<"INICIALIZANDO LAS MATRICES"<<endl;
+	U.setSizeCeros(nEle*2,cnod * cnod +2);
+	M.setSizeCeros(nEle,cnod +2);
 	F = vec(nEle); P = vec(nEle); B = vec(nEle*2);
+	
+	cout<<"SETEANDO LOS VECINOS"<<endl;
+	for(int i = 0; i < nEle ; i++){
+		vector<vec> ecua = elementos[i].SetVecinos(nEle);
+		U.setRow(ecua[0]); U.setRow(ecua[1]);
+		vec ecuaP = elementos[i].SetVecinosP(nEle);
+		M.setRow(ecuaP);
+	}
+	
+	cout<<"SETEANDO LOS COEFICIENTES QUICK"<<endl;
+	for(int i = 0; i < nEle ; i++){
+		elementos[i].SetQuick();
+	}
+	
 	
 	cout<<"FIN -  CARGA MALLA"<<endl;
 	
@@ -252,3 +237,17 @@ void Malla::write(FILE *fs, int i){
 	fprintf(fs,"End Values \n");
 	fprintf(fs,"\n");
 }
+
+
+
+void Malla::dibele(){
+	for(int i=0;i<elementos.size();i++)
+		elementos[i].dib();
+//	for(int i=0;i<elementos.size();i++)
+//		elementos[i].dibquick(elementos);
+}
+void Malla::dibquick(int e){
+	elementos[e].dibquick(elementos);
+}
+
+

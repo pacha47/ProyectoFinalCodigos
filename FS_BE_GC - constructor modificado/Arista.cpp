@@ -8,27 +8,7 @@ using namespace std;
 
 ///                    SETEADORES CONSTRUCTORES
 void Arista::addElemento(vector<Elemento>::iterator e){
-	
-	double d = sqrt( (this->midPoint - e->midP()) * (this->midPoint - e->midP()) ) ;
-	elementos.push_back(e); 
-	dist.push_back(d);
-	
-	if(tipoFront != 0){
-		dij = this->modulo / ( (this->midPoint - e->midP()) * this->normal);
-		if(dij < 0){
-			this->normal.x *= -1; this->normal.y *= -1;
-			dij*=-1;
-		}
-	}
-	
-	if(elementos.size() > 1){
-		Nodo d12 = elementos[0]->midP() - elementos[1]->midP();
-		d = sqrt( d12 * d12 );
-		dist.push_back(d);
-		dij = fabs ( this->modulo / (this->normal * d12) );
-	}
-}
-
+	elementos.push_back(e); }
 
 void Arista::addNodos(vector<Nodo>::iterator n1,vector<Nodo>::iterator n2){
 	/// ASIGNAMOS LOS NODOS
@@ -54,28 +34,13 @@ void Arista::setFront(double p){
 
 
 ///                          FUNCIONES BASICAS
-Elemento Arista::getVecino(Elemento e, vector<double> &d){
-	
-	d.clear();
-	if(elementos.size() == 1){
-		d.push_back(.5); d.push_back(.5);
-		return e;}
-	if(e == (*elementos[0])){
-		d.push_back(dist[1] / dist[2]);
-		d.push_back(dist[0] / dist[2]);
-		return (*elementos[1]);}
-	d.push_back(dist[0] / dist[2]);
-	d.push_back(dist[1] / dist[2]);
-	return (*elementos[0]);
-}
-
 Elemento Arista::getVecino(Elemento e){
-	if(elementos.size() == 1) return e;
-	if(e == (*elementos[0]))  return (*elementos[1]);
+	if(elementos.size() == 1)
+		return e;
+	if(e == (*elementos[0]))
+		return (*elementos[1]);
 	return (*elementos[0]);
 }
-
-
 Nodo Arista::getuv(){ return Nodo(u,v); }
 double Arista::getp(){ return p; }
 
@@ -101,9 +66,3 @@ double Arista::operator%(Nodo N){
 	if(p<0){
 		normal.x *= -1.0; normal.y *= -1.0; p *= -1.0;}
 	return p;}
-
-Nodo Arista::t(){
-	return (*nodos[0] - *nodos[1]);
-}
-
-

@@ -50,6 +50,9 @@ public:
 	
 	void write(FILE *fs);
 	void write(FILE *fs, int i);
+	
+	void dibele();
+	void dibquick(int e);
 
 };
 

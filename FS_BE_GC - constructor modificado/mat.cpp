@@ -75,7 +75,7 @@ void mat::GausSeidel(vec b, vec &x){
 	
 	double k = .0, ap = .0;
 	vec error(n);
-	int ite=0;
+	
 	while(true){
 		for(int i=0;i<n;i++){
 			for(int j=0; ceros[i][j] != -1 ; j++){
@@ -87,7 +87,7 @@ void mat::GausSeidel(vec b, vec &x){
 			k=ap=0;
 		}
 		error = (*this) * x - b;
-		if (error*error < 1e-10 || ite++ > 2*n) return;}
+		if (error*error < 1e-10) return;}
 }
 
 

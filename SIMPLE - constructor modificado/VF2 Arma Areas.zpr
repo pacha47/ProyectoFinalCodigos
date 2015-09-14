@@ -13,7 +13,7 @@ version_required=20130729
 custom_tabs=0
 tab_use_spaces=0
 explorer_path=
-current_source=main.cpp
+current_source=Arista.cpp
 path_char=/
 [source]
 path=main.cpp

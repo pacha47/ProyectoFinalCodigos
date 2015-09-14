@@ -19,6 +19,7 @@ private:
 	int numero;
 	vector< vector<Arista>::iterator > aristas;
 	vector< vector<Nodo>::iterator > nodos;
+//	vector<double> dN;
 	
 public:
 	
@@ -31,7 +32,13 @@ public:
 	
 	double operador_P2(double dt);
 	
-	void setVelNodos();
+	/// FUNCIONES DE VECINDAD
+	vector<int> Vecino(Elemento &P);
+	vector<vec> SetVecinos(int ne);
+	vec 		SetVecinosP(int ne);
+	void 		setVelNodos();
+	void 		SetQuick();
+	
 	
 	/// CONSTRUCTORES 
 	Elemento(){}
@@ -43,6 +50,11 @@ public:
 	bool operator!=(Elemento e);
 	
 	double getArea();
+	Nodo midP(){return midPoint;}
+	
+	void dib();
+	void dibquick(vector<Elemento> &E);
+	
 };
 
 

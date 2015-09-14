@@ -17,7 +17,10 @@ private:
 	vector<vector<Elemento>::iterator> elementos;
 	
 	int tipoFront, id;
-	double u,v,p, modulo;
+	double u,v,p, modulo, dij;
+	vector<double> dist;
+	vector<vector<double> > quick;
+	vector<vector<Nodo> >   Qnodos;
 	
 public:
 	/// CONSTRUSTORES Y SETEADORES
@@ -36,12 +39,20 @@ public:
 	
 	/// FUNCIONES BASICAS
 	Elemento getVecino(Elemento e);
+	Elemento getVecino(Elemento e, vector<double> &d);
 	int isFront(){return tipoFront;}
 	double getModulo();
 	Nodo getuv();
 	Nodo getn();
 	double getp();
 	Nodo getMidP();
+	
+	double d_ij(){return dij;}
+	Nodo t();
+	void setQuick(int P, double a3, int E, double a1, int W1, double W1a2, int W2, double W2a2, double fu, double fv);
+	vector<vector<double> > getQuick(){return quick;}
+	void setQNodos(Nodo P, Nodo E, Nodo W, Nodo W1, Nodo W2);
+	vector<vector<Nodo> > getQNodos(){return Qnodos;}
 	
 };
 

@@ -27,16 +27,11 @@ void load(ifstream &f,mint &elementos, mdouble &nodos, mdouble &contorno);
 int main (int argc, char **argv) {
 	
 	/// CARGAMOS LOS ARCHIVOS
-//	ifstream file(argv[1], ios::in);
-//	ifstream file("Cuadrado crusado TRIAN.dat", ios::in);
-//	ifstream file("FS-Cabidad45-Re100.dat", ios::in);
-	ifstream file("DC.dat", ios::in);
+	ifstream file(argv[1], ios::in);
+//	ifstream file("prueba2.dat", ios::in);
 	
-	
-//	FILE *fs = fopen(argv[2],"w");
-//	FILE *fs = fopen("Cuadrado crusado TRIAN.post.res","w");
-//	FILE *fs = fopen("FS-Cabidad45-Re100.post.res","w");
-	FILE *fs = fopen("DC.post.res","w");
+	FILE *fs = fopen(argv[2],"w");
+//	FILE *fs = fopen("prueba2.post.res","w");
 	
 	/// CARGAMOS LOS ELEMENTOS Y NODOS
 	load(file,ele, nodos, ncond);
@@ -49,26 +44,26 @@ int main (int argc, char **argv) {
 	cout<<"dt : "<<dt<<", Re : "<<Re<<endl;
 	cout<<"Iteraciones máximas : "<<iteraciones<<", tolerancia : "<<e<<endl<<endl;
 	
-//	iteraciones = 29;
+	m.primeraIte();
 	
 	int i=0, ii=2;
 	double ite_e=10;
-//	m.write(fs);
+	m.write(fs);
 	while (ite_e>e && iteraciones>i){
 		ite_e = m.iterar(dt);
 		cout<<"Error "<<++i<<": "<<ite_e<<endl;
-//		if( i%5 == 0 ) {
-//			m.addvel();
-//			m.defVel();
-//			m.write(fs,ii++);
-//		}
+		if( i%5 == 0 ) {
+			m.addvel();
+			m.defVel();
+			m.write(fs,ii++);
+		}
 	}
 	
-	m.addvel();
-	m.defVel();
-	m.write(fs);
+//	m.addvel();
+//	m.defVel();
+//	m.write(fs);
 	
-	cin>>i;
+//	cin>>i;
 	
 	return 0;
 }
