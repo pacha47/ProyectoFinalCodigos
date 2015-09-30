@@ -31,13 +31,13 @@ int main (int argc, char **argv) {
 //	ifstream file(argv[1], ios::in);
 //	ifstream file("Cuadrado crusado TRIAN.dat", ios::in);
 //	ifstream file("FS-Cabidad45-Re100.dat", ios::in);
-	ifstream file("DC.dat", ios::in);
+	ifstream file("DC45.dat", ios::in);
 	
 	
 //	FILE *fs = fopen(argv[2],"w");
 //	FILE *fs = fopen("Cuadrado crusado TRIAN.post.res","w");
 //	FILE *fs = fopen("FS-Cabidad45-Re100.post.res","w");
-	FILE *fs = fopen("DC.post.res","w");
+//	FILE *fs = fopen("DC.post.res","w");
 	
 	/// CARGAMOS LOS ELEMENTOS Y NODOS
 	load(file,ele, nodos, ncond);
@@ -45,15 +45,21 @@ int main (int argc, char **argv) {
 	/// ASIGNAMOS LA MALLA LEIDA
 	m.makeMalla(nodos,ele, ncond);
 	
-//	iteraciones = 3000;
-//	dt = 0.1;
-//	Re = 400;
+	
+	/// 		VARIABLES TEMPORALES
+	time_t t = time(0);
+	tm* b = localtime(&t);
+	
+	FILE *tf = fopen("Tiempos.txt","w");
+	fprintf(tf,"Metodo FRACTIONAL-STEP no-estructurado \n");
+	fprintf(tf,"Re: %f \n",Re);
+	fprintf(tf,"Tiempo de inicio: \n");
+	fprintf(tf,asctime(b) );
 	
 	cout<<endl<<"COMIENZA CALCULO CON:"<<endl;
 	
 	cout<<"dt : "<<dt<<", Re : "<<Re<<endl;
 	cout<<"Iteraciones máximas : "<<iteraciones<<", tolerancia : "<<e<<endl<<endl;
-	
 	
 	int i=0, ii=2;
 	double ite_e=10;
@@ -61,25 +67,36 @@ int main (int argc, char **argv) {
 	while (ite_e>e && iteraciones>i && ite_e < 1e5){
 		ite_e = m.iterar(dt);
 		cout<<"Error "<<++i<<": "<<ite_e<<endl;
-//		if( i%5 == 0 ) {
-//			m.addvel();
-//			m.defVel();
+		if( i%50 == 0 ) {
+			FILE *fs = fopen("DC.post.res","w");
+//			FILE *fs = fopen(argv[2],"w");
+			m.addvel();
+			m.defVel();
+			m.write(fs);
+			fclose(fs);
 //			m.write(fs,ii++);
-//		}
+		}
 	}
 	
+	FILE *fs = fopen("DC.post.res","w");
+//	FILE *fs = fopen(argv[2],"w");
 	m.addvel();
 	m.defVel();
 	m.write(fs);
+	fclose(fs);
 	
-	
+	t = time(0);
+	b = localtime(&t);
+	fprintf(tf,"Tiempo de fin: \n");
+	fprintf(tf,asctime(b) );
+	fclose(tf);
 	
 	
 //	glutInit (&argc, argv);
 //	initialize();
 //	glutMainLoop();//*/
 	
-	cin>>i;
+//	cin>>i;
 	
 	return 0;
 }

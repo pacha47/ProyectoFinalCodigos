@@ -9,6 +9,7 @@ class Nodo{
 public:
 	double x,y, modulo, u,v, p, c, u_aux, v_aux, p_aux;
 	vector<int> aris;
+	int front=0;
 	
 	/// CONSTRUCTORES
 	Nodo(double posX, double posY);
@@ -16,6 +17,7 @@ public:
 	
 	/// FUNCIONES BASICAS
 	void adduvp(double u, double v, double p);
+	void adduvp(double u, double v, double p, int alpha);
 	void defuvp();
 	void push_ariId(int id);
 	

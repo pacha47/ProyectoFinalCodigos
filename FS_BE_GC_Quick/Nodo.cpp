@@ -2,6 +2,8 @@
 #include "Nodo.h"
 #include <cmath>
 
+#include <iostream>
+
 using namespace std;
 
 /// CONSTRUCTOR
@@ -10,12 +12,35 @@ Nodo::Nodo(double posX, double posY){
 	c= u = v = p = u_aux = v_aux = p_aux = 0;
 }
 Nodo::Nodo(){
-	x=0;y=0;modulo=1;u=0; v=0; c=0;}
+	x=0;y=0;modulo=1;u=v=c=p=0;}
 
 /// FUNCIONES BASICAS
-void Nodo::adduvp(double u, double v, double p){ this->u_aux += u; this->v_aux += v; c++; this->p_aux += p; }
+void Nodo::adduvp(double u, double v, double p){ 
+	if(front==1){
+		c++;
+		this->p_aux += p;
+		return;
+	}
+	if(front==2){
+		this->u_aux += u; this->v_aux += v; c++;
+		return;
+	}
+	this->u_aux += u; this->v_aux += v; c++; this->p_aux += p; 
+}
 
-void Nodo::defuvp(){ u = u_aux / c; v = v_aux / c; p = p_aux / c; c = u_aux = v_aux = p_aux = 0;}
+
+void Nodo::defuvp(){
+	if(front==1){
+		p = p_aux / c;
+		c = p_aux = 0;
+		return;
+	}
+	if(front==2){
+		u = u_aux / c; v = v_aux / c; 
+		c = u_aux = v_aux = 0;
+		return;
+	}
+	u = u_aux / c; v = v_aux / c; p = p_aux / c; c = u_aux = v_aux = p_aux = 0;}
 
 void Nodo::push_ariId(int id){ aris.push_back(id);}
 

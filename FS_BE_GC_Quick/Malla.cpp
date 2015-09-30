@@ -48,23 +48,18 @@ void Malla::addvel(){ for(int i=0;i<elementos.size(); i++) elementos[i].setVelNo
 void Malla::defVel(){
 	for(int i=0;i<nodos.size();i++) nodos[i].defuvp();
 	
-	min = max = sqrt(nodos[0].u * nodos[0].u  + nodos[0].v * nodos[0].v);
-	for(int i=1;i<nodos.size();i++){
-		double uv = sqrt(nodos[i].u * nodos[i].u  + nodos[i].v * nodos[i].v);
-		max = (uv>max)? uv : max;
-		min = (uv<min)? uv : min;
-	}	
+//	min = max = sqrt(nodos[0].u * nodos[0].u  + nodos[0].v * nodos[0].v);
+//	for(int i=1;i<nodos.size();i++){
+//		double uv = sqrt(nodos[i].u * nodos[i].u  + nodos[i].v * nodos[i].v);
+//		max = (uv>max)? uv : max;
+//		min = (uv<min)? uv : min;
+//	}	
 }
 
 double Malla::iterar(double dt){
-//	cout<<"CD"<<endl;
 	operador_CD(dt);
-//	cout<<"P1"<<endl;
 	operador_P1(dt);
-//	cout<<"P2"<<endl;
 	double error = operador_P2(dt);
-//	addvel();
-//	defVel();
 	return error;
 }
 

@@ -13,11 +13,11 @@ version_required=20130729
 custom_tabs=0
 tab_use_spaces=0
 explorer_path=
-current_source=Arista.cpp
+current_source=main.cpp
 path_char=/
 [source]
 path=main.cpp
-cursor=50:39
+cursor=101:1
 open=true
 [source]
 path=Elemento.cpp
@@ -28,7 +28,7 @@ path=Nodo.cpp
 cursor=55:51
 [source]
 path=Arista.cpp
-cursor=159:15
+cursor=252:25
 marker=145
 marker=146
 marker=147

@@ -44,7 +44,7 @@ int main (int argc, char **argv) {
 	/// ASIGNAMOS LA MALLA LEIDA
 	double h = m.makeMalla(nodos,ele, ncond);
 	
-	dt = 0.01;
+//	dt = 0.01;
 	
 	cout<<endl<<"COMIENZA CALCULO CON:"<<endl;
 	

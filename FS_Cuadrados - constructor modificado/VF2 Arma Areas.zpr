@@ -17,7 +17,7 @@ current_source=main.cpp
 path_char=/
 [source]
 path=main.cpp
-cursor=56:45
+cursor=42:1
 open=true
 [source]
 path=Elemento.cpp

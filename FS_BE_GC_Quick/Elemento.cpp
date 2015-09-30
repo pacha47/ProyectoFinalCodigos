@@ -63,6 +63,16 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 			vector<vector <double> > q = aristas[i]->getQuick();
 			/// CALCULAMOS LA PARTE CONVECTIVA
 			double vn = aristas[i]->getModulo() * (*aristas[i] * u_f );
+			
+//			///   UPWIND
+//			if(vn>0){
+//				aP += vn;
+//				C = 0;
+//			}else{
+//				C = vn;
+//			}
+			
+			/// QUICK
 			if(vn>0){
 				if(q[0][0] == this->numero){
 					aP += 				 vn  * q[0][1];
@@ -71,8 +81,8 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 					ecuav(q[0][4]*2+1) 	-=vn * q[0][5];
 					ecuau(q[0][6]*2)   	-=vn * q[0][7];
 					ecuav(q[0][6]*2+1) 	-=vn * q[0][7];
-					fu -= 				 vn  * q[0][8];
-					fv -= 				 vn  * q[0][9]; }
+					fu += 				 vn  * q[0][8];
+					fv += 				 vn  * q[0][9]; }
 				if(q[1][0] == this->numero){
 					aP += 				 vn  * q[1][1];
 					C   = 				 vn  * q[1][3];
@@ -80,11 +90,8 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 					ecuav(q[1][4]*2+1) 	-=vn * q[1][5];
 					ecuau(q[1][6]*2) 	-=vn * q[1][7];
 					ecuav(q[1][6]*2+1) 	-=vn * q[1][7];
-					fu -= 				 vn  * q[1][8];
-					fv -= 				 vn  * q[1][9]; }
-//				aP += vn;
-//				C = 0;
-			}
+					fu += 				 vn  * q[1][8];
+					fv += 				 vn  * q[1][9]; } }
 			if(vn<0){
 				if(q[0][0] == vecino.numero){
 					aP += 				 vn  * q[0][3];
@@ -93,8 +100,8 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 					ecuav(q[0][4]*2+1) 	-=vn * q[0][5];
 					ecuau(q[0][6]*2) 	-=vn * q[0][7];
 					ecuav(q[0][6]*2+1) 	-=vn * q[0][7];
-					fu -= 				 vn  * q[0][8];
-					fv -= 				 vn  * q[0][9]; }
+					fu += 				 vn  * q[0][8];
+					fv += 				 vn  * q[0][9]; }
 				if(q[1][0] == vecino.numero){
 					aP += 				 vn  * q[1][3];
 					C   = 				 vn  * q[1][1];
@@ -102,10 +109,9 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 					ecuav(q[1][4]*2+1) 	-=vn * q[1][5];
 					ecuau(q[1][6]*2) 	-=vn * q[1][7];
 					ecuav(q[1][6]*2+1) 	-=vn * q[1][7];
-					fu -= 				 vn  * q[1][8];
-					fv -= 				 vn  * q[1][9]; }
-//				C = vn;
-			}
+					fu += 				 vn  * q[1][8];
+					fv += 				 vn  * q[1][9]; } }
+			
 			break;
 		}
 		
@@ -113,12 +119,12 @@ vector<vec> Elemento::operador_CD(int ne, double dt, double &fu, double &fv){
 		Pu -= (vecino.p * dist[1] + this->p * dist[0] ) * aristas[i]->getModulo() * aristas[i]->getn().x;
 		Pv -= (vecino.p * dist[1] + this->p * dist[0] ) * aristas[i]->getModulo() * aristas[i]->getn().y;
 		
-		ecuau(vecino.numero*2  ) = C - D;
-		ecuav(vecino.numero*2+1) = C - D;
+		ecuau(vecino.numero*2  ) += C - D;
+		ecuav(vecino.numero*2+1) += C - D;
 	}
 	
-	ecuau(this->numero*2  ) = aP + this->area / dt;
-	ecuav(this->numero*2+1) = aP + this->area / dt;
+	ecuau(this->numero*2  ) += aP + this->area / dt;
+	ecuav(this->numero*2+1) += aP + this->area / dt;
 	
 	fu += this->u * this->area / dt + Pu;
 	fv += this->v * this->area / dt + Pv;
@@ -231,7 +237,7 @@ double Elemento::operador_P2(double dt){
 		Nodo N = (aristas[i]->isFront() == 2) ? aristas[2]->getn() : aristas[i]->getn();;
 		/// SETEAMOS LOS COEFICIENTE DE LA MATRIZ Y EL TERMINO DERECHO
 		M(i,0) = N.x; M(i,1) = N.y;
-		F(i) = N.x*u_f + N.y*v_f - gradP / .5;
+		F(i) = N.x*u_f + N.y*v_f - gradP;
 	}
 	
 	M.gauss(F,v);
@@ -287,51 +293,36 @@ void Elemento::SetQuick(){
 			E = aristas[i]->getVecino(*this);
 			
 			/// CALCULAMOS LA PENDIENTE Y ORDENADA DE ORIGEN
-			if( (E.midPoint.x - this->midPoint.x) * (E.midPoint.x - this->midPoint.x) > 1e-6 ){
-				my1 = 1.0;
-				m1 = (E.midPoint.y - this->midPoint.y) / (E.midPoint.x - this->midPoint.x);
-				b1 = this->midPoint.y - m1 * this->midPoint.x;
-			}else{
-				my1 = .0; m1 = -1.0;
-				b1 = this->midPoint.x;
-			}
-			
-			
+			if( (E.midPoint.x - this->midPoint.x) * (E.midPoint.x - this->midPoint.x) > 1e-26 ){
+					my1 = 1.0;
+					m1 = (E.midPoint.y - this->midPoint.y) / (E.midPoint.x - this->midPoint.x);
+					b1 = this->midPoint.y - m1 * this->midPoint.x;
+			}else{	my1 = .0; m1 = -1.0;
+					b1 = this->midPoint.x; }
+			/// OBTENEMOS LOS ELEMENTOS VECINOS DEL W QUICK
 			if( !aristas[ (i+1)%na ]->isFront() ){
-				N1 = aristas[ (i+1)%na ]->getVecino(*this);
-			}else{
-				N1 = *this;
-				N1.midPoint = aristas[(i+1)%na]->getMidP() + (aristas[(i+1)%na]->getMidP() - this->midPoint);
-			}
+					N1 = aristas[ (i+1)%na ]->getVecino(*this);
+			}else{	N1 = *this;
+					N1.midPoint = aristas[(i+1)%na]->getMidP() + (aristas[(i+1)%na]->getMidP() - this->midPoint); }
 			if( !aristas[ (i+2)%na ]->isFront() ){ 
-				N2 = aristas[ (i+2)%na ]->getVecino(*this);
-			}else{
-				N2 = *this;
-				N2.midPoint = aristas[(i+2)%na]->getMidP() + (aristas[(i+2)%na]->getMidP() - this->midPoint);
-			}
+					N2 = aristas[ (i+2)%na ]->getVecino(*this);
+			}else{	N2 = *this;
+					N2.midPoint = aristas[(i+2)%na]->getMidP() + (aristas[(i+2)%na]->getMidP() - this->midPoint); }
 			
 			/// CALCULAMOS LA PENDIENTE Y ORDENADA DE ORIGEN
-			if( ( N1.midPoint.x - N2.midPoint.x) * ( N1.midPoint.x - N2.midPoint.x) > 1e-6){
+			if( ( N1.midPoint.x - N2.midPoint.x) * ( N1.midPoint.x - N2.midPoint.x) > 1e-26){
 				my2 = 1.0;
 				m2 = (N1.midPoint.y - N2.midPoint.y) / ( N1.midPoint.x - N2.midPoint.x);
 				b2 = N1.midPoint.y - m2 * N1.midPoint.x;
-			}else{
-				my2 = 0.0;
-				m2 = -1.0;
-				b2 = this->midPoint.x;
-			}
-			
+			}else{	my2 = 0.0;
+					m2 = -1.0;
+					b2 = N1.midPoint.x;	}
 			
 			/// INICIALIZAMOS EL SISTEMA PARA OBTENER EL PUNTO DE INTERSECCION
 			mat m(2);
 			vec b(2),x(2);
-			
-			m(0,0) = my1;
-			m(1,0) = my2;
-			m(0,1) = -m1;
-			m(1,1) = -m2;
-			b(0)   = b1;
-			b(1)   = b2;
+			m(0,0) = my1;	m(0,1) = -m1;	b(0)   = b1;
+			m(1,0) = my2;	m(1,1) = -m2;	b(1)   = b2;
 			
 			/// RESOLVEOS
 			m.gauss(b,x);
@@ -340,44 +331,50 @@ void Elemento::SetQuick(){
 			Nodo W(x(1),x(0));
 			
 			/// CALCULAMOS LOS ALPHAS DE INTERPOLACION
-			m(0,0) = N1.midPoint.x;
-			m(0,1) = N2.midPoint.x;
-			b(0)   = W.x;
-			
-			m(1,0) = N1.midPoint.y;
-			m(1,1) = N2.midPoint.y;
-			b(1)   = W.y;
-			
+			m(0,0) = N1.midPoint.x;	m(0,1) = N2.midPoint.x;	b(0)   = W.x;
+			m(1,0) = N1.midPoint.y;	m(1,1) = N2.midPoint.y;	b(1)   = W.y;
+			/// RESOLVEMOS
 			m.gauss(b,x);
+			
 			/// INICIALIZAMOS LOS ALPHA
 			a1=x(0); a2=x(1);
 			
-			
-			m(0,0) = W.x; m(0,1) = E.midPoint.x; b(0) = this->midPoint.x;
-			m(1,0) = W.y; m(1,1) = E.midPoint.y; b(0) = this->midPoint.y;
+			m(0,0) = W.x; 	m(0,1) = E.midPoint.x;	b(0) = this->midPoint.x;
+			m(1,0) = W.y; 	m(1,1) = E.midPoint.y; 	b(1) = this->midPoint.y;
 			
 			m.gauss(b,x);
 			
-//			double 	Qa1 = ( ( 2.0 - x(0) ) * x(1) * x(1) ) / ( 1 + x(1) - x(0) ),
-//				Qa2 = ( ( 1.0 - x(1) ) * (1.0 - x(0) ) * (1.0 - x(0) ) ) / ( 1.0 + x(1) - x(0) );
+			double 	Qa1 = ( ( 2.0 - x(0) ) * x(1) * x(1) ) / ( 1 + x(1) - x(0) ),
+				Qa2 = ( ( 1.0 - x(1) ) * (1.0 - x(0) ) * (1.0 - x(0) ) ) / ( 1.0 + x(1) - x(0) );
 			
-			double Qa1 = 3.0 / 8.0, Qa2 = 1.0 / 8.0;
+//			double Qa1 = 3.0 / 8.0, Qa2 = 1.0 / 8.0;
+			
+//			cout<<Qa1<<" , "<<Qa2<<" , "<<1.0-Qa1+Qa2<<endl;
+			
+			
+//			double 	Qa1 = (aristas[i]->getMidP() - W) * (aristas[i]->getMidP() - W),
+//					Qa2 = (aristas[i]->getMidP() - this->midPoint) * (aristas[i]->getMidP() - this->midPoint),
+//					d   = (W -this->midPoint) * (W -this->midPoint);
+//			
+//			Qa1 = sqrt ( Qa1 / d);
+//			Qa2 = sqrt ( Qa2 / d);
+			
+//			cout<<Qa1<<" , "<<Qa2<<endl;
 			
 			/// VERIFICAMOS FRONTERA PARA AGEGARLO A LA FUENTE
 			double fu = .0 , fv = .0 , Pfront = .0;
 			if(N1.numero == this->numero){
-				fu -= aristas[ (i+1)%na ]->getuv().x * 2.0 * a1 * Qa2;
-				fv -= aristas[ (i+1)%na ]->getuv().y * 2.0 * a1 * Qa2;
+				fu += aristas[ (i+1)%na ]->getuv().x * 2.0 * a1 * Qa2;
+				fv += aristas[ (i+1)%na ]->getuv().y * 2.0 * a1 * Qa2;
 				Pfront += Qa2 * a1;}
 			if(N2.numero == this->numero){
-				fu -= aristas[ (i+2)%na ]->getuv().x * 2.0 * a2 * Qa2;
-				fv -= aristas[ (i+2)%na ]->getuv().y * 2.0 * a2 * Qa2;
+				fu += aristas[ (i+2)%na ]->getuv().x * 2.0 * a2 * Qa2;
+				fv += aristas[ (i+2)%na ]->getuv().y * 2.0 * a2 * Qa2;
 				Pfront += Qa2 * a2;}
 			
+//			aristas[i]->setQuick(this->numero, Pfront + Qa1, E.numero, 0, N1.numero, Qa2 * a1, N2.numero, Qa2 * a2, fu , fv);
+			
 			aristas[i]->setQuick(this->numero, Pfront + (1.0 - Qa1 + Qa2), E.numero, Qa1, N1.numero, Qa2 * a1, N2.numero, Qa2 * a2, fu , fv);
-			
-			
-			
 			aristas[i]->setQNodos(this->midPoint, E.midPoint, W, N1.midPoint , N2.midPoint);
 		}
 	}
@@ -385,10 +382,8 @@ void Elemento::SetQuick(){
 }
 
 
-
-
 void Elemento::setVelNodos(){ 
-	for(int i = 0 ; i < nodos.size() ; i++)  nodos[i]->adduvp(u,v,p);
+	for(int i = 0 ; i < nodos.size() ; i++) nodos[i]->adduvp(u,v,p);
 }
 
 ///            CONSTRUCTOR

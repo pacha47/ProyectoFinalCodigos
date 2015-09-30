@@ -52,9 +52,19 @@ void Arista::addNodos(vector<Nodo>::iterator n1,vector<Nodo>::iterator n2){
 
 ///                          SETEAMOS LOS VALORES PARA LA FRONTERA
 void Arista::setFront(double u, double v){
-	this->u = u;  this->v = v;  tipoFront = 1; }
+	this->u = u;  this->v = v;  tipoFront = 1;
+	
+	nodos[0]->front = nodos[1]->front = 1; 
+	nodos[0]->u = (fabs(nodos[0]->u) > fabs(u)) ? nodos[0]->u : u; 
+	nodos[0]->v = (fabs(nodos[0]->v) > fabs(v)) ? nodos[0]->v : v;
+	nodos[1]->u = (fabs(nodos[1]->u) > fabs(u)) ? nodos[1]->u : u; 
+	nodos[1]->v = (fabs(nodos[1]->v) > fabs(v)) ? nodos[1]->v : v;
+	}
 void Arista::setFront(double p){
-	this->p = p; tipoFront = 2;}
+	this->p = p; tipoFront = 2;
+	nodos[0]->front = 2; nodos[0]->p = p;
+	nodos[1]->front = 2; nodos[1]->p = p;
+	}
 
 ///							SETEAMOS LOS VALORES DEL QUICK PARA EL ELEMENTO QUE LLAMO
 void Arista::setQuick(int P, double a3, int E, double a1, int W1, double W1a2, int W2, double W2a2, double fu, double fv){
